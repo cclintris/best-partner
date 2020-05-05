@@ -1,6 +1,7 @@
+# coding=utf-8
 import sys
 
-''''
+'''
 
 @:param
 line: 目标代码
@@ -10,9 +11,12 @@ true:  第line行目标代码包含 print() 函数
 false: 第line行目标代码不包含 print() 函数
 
 '''
+
+
 def standard1(line):
     standard1 = "print"
     return line.find(standard1) != -1
+
 
 '''
 
@@ -24,12 +28,15 @@ true: 断言面向用例
 false: 断言非面向用例
 
 '''
+
+
 def standard1Judge(standard1Recorder):
     printFreq = 0
     for i in range(standard1Recorder.__len__()):
         if standard1Recorder[i]:
-            printFreq+=1
+            printFreq += 1
     return printFreq != 1
+
 
 '''
 
@@ -58,6 +65,8 @@ syntaxTypefreq: 第line行代码包含结构各出现频率
 '''
 
 syntax = ["for", "if", "elif", "else", "while", "do", "def"]
+
+
 def standard2(line):
     syntaxTypefreq = [0 for _ in range(syntax.__len__())]
     for i in range(syntax.__len__()):
@@ -80,6 +89,8 @@ true: 断言面向用例
 false: 断言非面向用例
 
 '''
+
+
 def standard2Judge(standard2Recorder):
     syntaxJudge = [0 for _ in range(syntax.__len__())]
     for i in range(standard2Recorder.__len__()):
@@ -92,11 +103,12 @@ def standard2Judge(standard2Recorder):
         else:
             if i == 1:
                 syntaxKinds += 1
-            elif i != 1 and (i == 2 or i == 3) :
+            elif i != 1 and (i == 2 or i == 3):
                 continue
             else:
                 syntaxKinds += 1
     return syntaxKinds == 1
+
 
 ''''
 
@@ -108,6 +120,7 @@ true: 断言面向用例
 false: 认定目标代码import其他python库，断言非面向用例
 
 '''
+
 
 def standard3Judge(firstLine):
     standard3 = "import"
