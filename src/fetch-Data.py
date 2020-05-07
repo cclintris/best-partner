@@ -21,7 +21,7 @@ f.close()
 if not os.path.exists("../code"):
     os.mkdir("../code")
 destination = "../code/"
-"""
+
 user_score = {}
 case_type = {}
 users = list(data)
@@ -60,8 +60,6 @@ for user in users:
         s[data[user]["cases"][case]["case_id"]] = final_score
         case_type[data[user]["cases"][case]["case_id"]] = data[user]["cases"][case]["case_type"]
     user_score[user] = s
-"""
-
 
 
 
