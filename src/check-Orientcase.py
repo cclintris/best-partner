@@ -44,7 +44,7 @@ def standard1Judge(standard1Recorder):
 line: 目标代码
 
 @:type
-suntaxTypefreq: list
+syntaxTypefreq: list
 
 standard2 index:
 0 for
@@ -128,11 +128,15 @@ def standard3Judge(firstLine):
 
 
 '''
+check-Orientcase.py 主要对外接口
 
 代码是否面向用例评判标准:
 standard1
 standard2
 standard3
+
+@:param
+targetCodepath: 目标代码相对路径
 
 @:return
 true: 断言面向用例
@@ -140,8 +144,36 @@ false: 断言非面向用例
 
 '''
 
+def checkOrientCase(targetCodepath):
+    # 起初都先假设目标代码为非面向用例
+    assertCodeIsOrientCase = False
+    with open(targetCodepath, "r") as f:
+        standard1Recorder = []
+        standard2Recorder = []
+        # 目标代码第一行
+        firstLine = f.readline()
+        # 目标代码每一行，将存储为 list[] 的数据结构
+        data = f.readlines()
+        for i in range(data.__len__()):
+            standard1Recorder.append(standard1(data[i]))
+            standard2Recorder.append(standard2(data[i]))
+        print(standard1Judge(standard1Recorder))
+        print(standard2Judge(standard2Recorder))
+        print(standard3Judge(firstLine))
+        assertCodeIsOrientCase = standard1Judge(standard1Recorder) and \
+                                 standard2Judge(standard2Recorder) and \
+                                 standard3Judge(firstLine)
+
+        return assertCodeIsOrientCase
+
+
+
+'''
+
+本地测试main函数
+
 if __name__ == '__main__':
-    assertCodeIsOrientCase = True
+    assertCodeIsOrientCase = False
     with open("D:\數據科學基礎/best-partner/test/test.py", "r") as f:
         standard1Recorder = []
         standard2Recorder = []
@@ -157,3 +189,5 @@ if __name__ == '__main__':
                                  standard2Judge(standard2Recorder) and \
                                  standard3Judge(firstLine)
         print(assertCodeIsOrientCase)
+'''
+
