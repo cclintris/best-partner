@@ -168,13 +168,13 @@ def checkOrientCase(targetCodepath):
 
 
 
-'''
 
-本地测试main函数
+
+#本地测试main函数
 
 if __name__ == '__main__':
     assertCodeIsOrientCase = False
-    with open("D:\數據科學基礎/best-partner/test/test.py", "r") as f:
+    with open("D:\數據科學基礎/best-partner/test/test.py", "r", encoding="utf-8") as f:
         standard1Recorder = []
         standard2Recorder = []
         firstLine = f.readline()
@@ -189,5 +189,5 @@ if __name__ == '__main__':
                                  standard2Judge(standard2Recorder) and \
                                  standard3Judge(firstLine)
         print(assertCodeIsOrientCase)
-'''
+
 
