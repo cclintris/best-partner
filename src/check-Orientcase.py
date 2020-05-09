@@ -17,7 +17,7 @@ def standard1(line):
     standard1 = "print"
     if line.find("#") != -1:
         return "NULL"
-    if(line.find(standard1) != -1):
+    if line.find(standard1) != -1:
         return line
     else:
         return "NULL"
@@ -47,9 +47,9 @@ def standard1Judge(standard1Recorder):
             start = standard1Recorder[i].find("(")
             end = standard1Recorder[i].find(")")
             # 撷取 print函数 '()' 之间的打印信息
-            printedContextlist = lineList[start+1: end]
+            printedContextlist = lineList[start + 1: end]
             printedContext = ''.join(printedContextlist)
-            if(printedContext.isnumeric()):
+            if (printedContext.isnumeric()):
                 illegalPrintFreq += 1
 
     if printFreq > 2:
@@ -170,6 +170,7 @@ false: 断言非面向用例
 
 '''
 
+
 def checkOrientCase(targetCodepath):
     # 起初都先假设目标代码为非面向用例
     assertCodeIsOrientCase = False
@@ -190,8 +191,6 @@ def checkOrientCase(targetCodepath):
                                  standard3Judge(firstLine)
 
         return assertCodeIsOrientCase
-
-
 
 
 '''
