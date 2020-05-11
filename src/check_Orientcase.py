@@ -154,7 +154,7 @@ def standard3Judge(firstLine):
 
 
 '''
-check-Orientcase.py 主要对外接口
+check_Orientcase.py 主要对外接口
 
 代码是否面向用例评判标准:
 standard1

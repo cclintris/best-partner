@@ -29,7 +29,7 @@ def get_type_score_of_students(student_score_list: dict, question_type_list: dic
     """
     获取学生每种题型的总分
     :param student_score_list: 所有学生所有题目的分数
-    :param question_type_list: 所有题目的类型字典
+    :param question_type_list: 所有问题类型的字典
     :return: 每一学生每一类型题目总分的字典
     """
     student_score_list_group_by_question_type = defaultdict(dict)
@@ -47,7 +47,7 @@ def get_type_score_rate_of_questions(students_type_score: dict) -> dict:
     """
     获取每种题型的总体得分权值
     :param students_type_score: 每一学生每一类型题目的总分
-    :return:每种题型的得分权值(权值公式：总得分/基准值)(此处定为20000/8*学生人数，并且权值越低权重越高)
+    :return:每种题型的得分权值字典(权值公式：总得分/基准值)(此处定为20000/8*学生人数，并且权值越低权重越高)
     """
     questions_score_rate = defaultdict(int)
     base = 2500 * len(students_type_score)

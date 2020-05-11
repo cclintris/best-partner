@@ -45,9 +45,9 @@ for user in users:
                     zz.extract(zi, destination + "res/" + name[upload])
                 zz.close()
             zFile.close()
-            transferPath = destination + "res/" + name[upload] + "/main.py"       # 传递的路径
+            transferPath = destination + "res/" + name[upload] + "/main.py"  # 传递的路径
             code = open(destination + "res/" + name[upload] + "/main.py", 'r', encoding='utf-8')
-            c = code.read()   # 整个代码-字符串类型
+            c = code.read()  # 整个代码-字符串类型
             code.close()
             x = a(c)
             # 当x是true时，说明这份代码面向用例了, 此时认为这次提交的分数应为0分
@@ -60,6 +60,3 @@ for user in users:
         s[data[user]["cases"][case]["case_id"]] = final_score
         case_type[data[user]["cases"][case]["case_id"]] = data[user]["cases"][case]["case_type"]
     user_score[user] = s
-
-
-
