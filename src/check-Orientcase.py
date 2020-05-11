@@ -218,3 +218,4 @@ if __name__ == '__main__':
                                  standard3Judge(firstLine)
         print(assertCodeIsOrientCase)
 '''
+
