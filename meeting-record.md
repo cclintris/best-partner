@@ -25,16 +25,16 @@ b)方法合理。
 
 | 组员 | 负责工作                               |
 | :------: | ---------------------------------------- |
-|  林希澄  | 完成 check-Orientcase.py |
-|  薛人玮  | 完成 fetch-Data.py |
-|  任一丁  | 完成 grouping-And-Statistics.py  |
+|  林希澄  | 完成 check_Orientcase.py |
+|  薛人玮  | 完成 fetch_Data.py |
+|  任一丁  | 完成 grouping_And_Statistics.py  |
 
 下次组会时间暂定为5.9的下午4点，届时需完成第2阶段的工作及核对
 
 
 ### 2020/5/10
 会议内容：
-1. 对接checkOrientcase.py, fetch.py, grouping-And-Statistics.py 接口
+1. 对接check_Orientcase.py, fetch_Data.py, grouping_And_Statistics.py 接口
 2. 更改研究方向：基于分组推荐学习小组
 
 第3阶段分工情况：
