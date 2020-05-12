@@ -4,7 +4,7 @@ import urllib.request
 import os
 import shutil
 import zipfile
-from src import check_Orientcase
+import check_Orientcase
 
 
 class Data:
