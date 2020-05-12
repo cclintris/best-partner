@@ -20,7 +20,7 @@ def deal_with_data(student_score_list: dict, question_type_list: dict) -> list:
     students_list.sort(key=lambda x: students_total_score[x])
 
     # 以5分为间距获取不少于5人不多于20人的小组，可能出现小组极差大于5分的情况
-    group_list = group_by(students_list, students_total_score, 5, 20, 5)
+    group_list = group_by(students_list, students_total_score)
 
     return group_list
 
@@ -73,14 +73,14 @@ def get_weighted_score_of_students(students_type_score: dict, questions_score_ra
     return students_total_score
 
 
-def group_by(student_list: list, student_total_score: dict, least: int, maximal: int, gap: int) -> list:
+def group_by(student_list: list, student_total_score: dict, least: int = 5, maximal: int = 20, gap: int = 5) -> list:
     """
     获得按水平分组的学生小组列表
     :param student_list:加权分从低到高的学生ID列表
     :param student_total_score: 学生的分数字典
-    :param least: 每组学生的最少数目
-    :param maximal: 每组学生的最多数目
-    :param gap:分组的间隔
+    :param least: 每组学生的最少数目，默认为5人
+    :param maximal: 每组学生的最多数目，默认为20人
+    :param gap:分组的间隔，默认为5分
     :return:按水平分组的小组列表，列表的每一项是学生ID
     """
     # 初始化
