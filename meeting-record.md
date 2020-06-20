@@ -46,3 +46,24 @@ b)方法合理。
 下次组会时间暂定为5.16的下午4点，届时需完成第2阶段的工作及核对
 
 * ddl: 5/14 9:00 提交项目ppt(zychen@nju.edu.cn)，5/13组内审核
+
+### 2020/6/16
+会议内容：
+1. 更改了项目方向 ： 研究代码查重相关系统和算法。
+2. 参考资料 ： 
+- [A System for Detecting Software Similarity](https://theory.stanford.edu/~aiken/moss/)
+- [基于K-gram hash 分析特征提取技术](https://blog.csdn.net/chichoxian/article/details/53128303)
+- [
+The software and text similarity tester SIM](https://dickgrune.com/Programs/similarity_tester/)
+- [用JPlag在一组程序中寻找抄袭行为](https://segmentfault.com/a/1190000015066788)
+
+第4阶段分工情况：
+
+| 组员 | 负责工作                               |
+| :------: | ---------------------------------------- |
+|  林希澄  | 了解代码查重相关工具和算法  |
+|  薛人玮  | 了解代码查重相关工具和算法 |
+|  任一丁  | 了解代码查重相关工具和算法 |
+
+下次组会时间暂定为6.20的晚上10点，届时需完成第4阶段的工作及核对
+
