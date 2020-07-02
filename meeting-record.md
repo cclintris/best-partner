@@ -67,7 +67,7 @@ The software and text similarity tester SIM](https://dickgrune.com/Programs/simi
 
 下次组会时间暂定为6.20的晚上10点，届时需完成第4阶段的工作及核对
 
-### 20207/2
+### 2020/7/2
 会议内容：
 1. 确定项目方向，不得再更改。
 
