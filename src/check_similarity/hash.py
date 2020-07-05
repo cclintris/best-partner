@@ -10,9 +10,11 @@ def generateHash(base, kgram, k):
 
     return Hashlist
 
+'''
 base = 5
 k = 3
 if __name__ == '__main__':
     kgram = ['yab', 'abb', 'bba', 'bad', 'ada', 'dab', 'abb', 'bba', 'bad', 'ado', 'doo']
     Hashlist = generateHash(base, kgram, k)
     print(Hashlist)
+'''
