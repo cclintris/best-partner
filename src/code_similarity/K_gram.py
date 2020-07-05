@@ -8,7 +8,6 @@ def generateKgram(file, k):
         kgram.append(shingle)
     return kgram
 
-'''
 k = 3
 if __name__ == '__main__':
     with open("D:\\數據科學基礎/best-partner/test/test.txt", "r", encoding="utf-8") as f:
@@ -17,5 +16,5 @@ if __name__ == '__main__':
         file = data[0]
         kgram = generateKgram(file, k)
         print(kgram)
-'''
+
 
