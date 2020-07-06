@@ -1,5 +1,5 @@
-from collections import defaultdict
 import re
+from collections import defaultdict
 
 
 class TimeChecker:
@@ -16,11 +16,16 @@ class TimeChecker:
         self.indentation_structure.append(0)
         self.methods = {}
         self.methods_complexity = {}
+        # 常见递归表单，由指数、系数和尾数构成元组项，对应复杂度
+        self.complexity_list = {
+            (-1, 1, '1'): "log_n", (-1, 2, '1'): "n", (-1, 2, 'n'): "n*log_n", (1, 1, '1'): "n",
+            (1, 1, 'n'): "n^2", (1, 2, 'n'): "2^n", (2, 1, '1'): "n^2", (2, 2, '1'): "n^2*log_n"
+        }
 
     def __len__(self):
         return len(self.codes)
 
-    def cal_method_complexity(self, method: str, method_begin: int, method_end: int, methods: dict) -> str:
+    def cal_method_complexity(self, method: str, method_begin: int, method_end: int) -> str:
         """
         计算代码方法时间复杂度的方法，该方法有以下限制：
         1. 允许检查嵌套循环的复杂度;
@@ -34,7 +39,6 @@ class TimeChecker:
         :param method: 检查方法的名字
         :param method_begin: 方法的起始位置
         :param method_end: 方法的结束位置
-        :param methods: 同文件方法的起始位置字典
         :return: 代码时间复杂度
         """
         if method in self.methods_complexity:
@@ -76,7 +80,7 @@ class TimeChecker:
                 return
             return
 
-        def deal_recursion(code: str):
+        def deal_recursion(code: str, rec_index: int):
             """
             根据递归代码计算递归复杂度，该方法有以下限制：
             1. 仅仅以常见的递归复杂度为模板估算复杂度，而不进行详尽的变量扫描和计算得出结论;
@@ -90,12 +94,54 @@ class TimeChecker:
                 T(n)=T(n-1)+O(n)         T(n)=O(n^2)
                 T(n)=2*T(n-1)+O(1)       T(n)=O(2^n)
                 T(n)=T(n-1)+T(n-2)+O(1)  T(n)=O(2^n)
+                其中计算复杂度时，递归式中若包含对同文件其他函数的调用，将其视为O(n)
+            4. 如果无法计算递归的复杂度，将其视为O(n)
             :param code: 产生递归的代码
+            :param rec_index: 递归代码所在的行号
             :return:
             """
             if code.count('='):
                 code = code.split('=')[1]
+            complexity = ''
             has_rec = re.search(method, code)
+
+            def deal_comp() -> str:
+                """
+                在代码处理结束后对complexity中的记录进行处理和匹配;默认递归中不会出现减号和除号在统一调用中匹配成功的情况
+                可能出现的匹配模式如下所示：
+                1. [[0-9]*[*]n^[0-9]*[ ]]*[n1]
+                2. [[0-9]*[*]n/2[ ]]*[n1]
+                :return:
+                """
+                comp_list = complexity.split(' ')[:-1]
+                rec_count = 0
+                rec_exp = 1
+                rec_tail = ''
+                for frac in comp_list:
+                    if re.match("[0-9]*[*]n/2", frac):
+                        a = frac.split('*')
+                        if len(a) > 1:
+                            rec_count += int(a[0])
+                        else:
+                            rec_count += 1
+                        rec_exp = -1
+                    elif re.match("[0-9]*[*]n[\^]*[0-9]*", frac):
+                        a = frac.split('*')
+                        if len(a) > 1:
+                            rec_count += int(a[0])
+                        else:
+                            rec_count += 1
+                        rec_exp = max(rec_exp, int(frac.split('^')[1]))
+                rec_tail = comp_list[-1]
+                res = self.complexity_list[(rec_exp, rec_count, rec_tail)]
+                if res:
+                    return res
+                else:
+                    if rec_exp > 1:
+                        return "n^" + str(rec_exp)
+                    else:
+                        return "n"
+
             while has_rec:
                 # 代码中仍存在自递归调用时
                 rec_start = has_rec.start()
@@ -104,15 +150,74 @@ class TimeChecker:
                 rec_params = rec_params.group().split(',')
                 for rec_param in rec_params:
                     if not rec_param.lstrip('-').isdigit():
-                        # 作为非数字的参数，检查减号和除号进行匹配
-                        return
+                        # 作为非数字的参数，检查减号、除号以及乘号进行匹配
+                        comp_2add = ''
+                        rec_m = rec_param.count('-')
+                        if rec_m:
+                            comp_2add += ("n^" + str(rec_m) + ' ')
+                        else:
+                            rec_d = rec_param.count('/')
+                            if rec_d:
+                                comp_2add = "n/2 "
+                        rec_mul = re.search('[0-9]*[*]', code[rec_start: rec_end])
+                        if rec_mul:
+                            comp_2add = rec_mul.group() + comp_2add
+                        complexity += comp_2add
+                code = code[:rec_start] + code[rec_end + 1:]
+                has_rec = re.search(method, code)
+            # 代码中无自递归调用时
+            is_call = False
+            for name in self.methods:
+                is_call = is_call | (re.search(name, code) is not None)
+                if is_call:
+                    break
+            if is_call:
+                complexity += 'n '
+            else:
+                complexity += '1 '
+            complexity_tag[rec_index] = deal_comp()
+            return
 
-        def integration_complexity() -> str:
+        def integrate_complexity() -> str:
             """
             整合complexity_tag上所记录的单行产生的复杂度，并返回整体复杂度
             :return: 方法的时间复杂度
             """
-            return ''
+            indentation_level = self.indentation_structure[method_begin + 1]
+            comp_record = [complexity_tag[method_begin + 1]]
+            record2comp = defaultdict(int)
+
+            def integrate(c1: str, c2: str) -> str:
+                """
+                两个复杂度相加
+                :param c1: 复杂度1
+                :param c2: 复杂度2
+                :return:
+                """
+                return ''
+
+            def max_comp() -> str:
+                """
+                查找列表中代表复杂度最高的字符串
+                :return:
+                """
+                return ''
+
+            for i in range(method_begin + 1, method_end):
+                temp_level = self.indentation_structure[i]
+                # 缩进层下落则增加复杂度，缩进层上浮则弹出复杂度
+                if temp_level > indentation_level:
+                    comp_record.append(integrate(comp_record[-1], complexity_tag[i]))
+                else:
+                    temp_record = comp_record.pop(-1)
+                    max_level = max(record2comp.values())
+                    # 当前深度与最大深度相同则添加复杂度串，更深则清空后添加复杂度串，较浅则不添加
+                    if temp_level >= max_level:
+                        if temp_level > max_level:
+                            record2comp.clear()
+                        record2comp[temp_record] = temp_level
+                indentation_level = temp_level
+            return max_comp()
 
         for i in range(method_begin + 1, method_end):
             method_line = self.codes[i].lstrip()
@@ -124,8 +229,8 @@ class TimeChecker:
             # 扫描是否是自递归方法
             is_recursion = re.search(method, method_line)
             if is_recursion:
-                deal_recursion(method_line)
-        return integration_complexity()
+                deal_recursion(method_line, i)
+        return integrate_complexity()
 
     def cal_main_complexity(self, codes: list, methods: dict) -> str:
         """
@@ -179,9 +284,9 @@ class TimeChecker:
         main_tag = [1 for i in range(codes_len)]
         for method in methods:
             method_begin = methods[method]
-            indentation_level = self.indentation_structure[method_begin]
-            method_end = self.indentation_structure.index(indentation_level, method_begin + 1, codes_len)
-            method_complexity[method] = self.cal_method_complexity(method, method_begin, method_end, methods)
+            method_end = self.indentation_structure.index(self.indentation_structure[method_begin], method_begin + 1,
+                                                          codes_len)
+            method_complexity[method] = self.cal_method_complexity(method, method_begin, method_end)
             for i in range(method_begin, method_end):
                 main_tag[i] = 0
         # 获取主函数副本并检查复杂度
@@ -195,6 +300,6 @@ class TimeChecker:
 
 
 if __name__ == '__main__':
-    t = TimeChecker("../check_similarity/K_gram.py")
+    t = TimeChecker("../code_similarity/K_gram.py")
     print(t.deal_with_file())
     # print(deal_with_file("time_complexity.py"))
