@@ -449,7 +449,7 @@ class NoFuncException(Exception):
         self.source = source
 
 
-def detect(pycode_string_list, diff_method=UnifiedDiff):
+def detect(pycode_string_list, diff_method=TreeDiff):
     if len(pycode_string_list) < 2:
         return []
 
@@ -514,7 +514,7 @@ def _profile(fn):
 
 
 # @_profile
-def main():
+def inspect(file1path, file2path):
     def check_line_limit(value):
         ivalue = int(value)
         if ivalue < 0:
@@ -528,23 +528,30 @@ def main():
         return ivalue
 
     def get_file(value):
+        print("value:" + value)
         return open(value, 'rb')
 
-    parser = ArgParser(description='A simple plagiarism detection tool for python code')
-    parser.add_argument('files', type=get_file, nargs=2,
-                        help='the input files')
-    parser.add_argument('-l', type=check_line_limit, default=4,
-                        help='if AST line of the function >= value then output detail (default: 4)')
-    parser.add_argument('-p', type=check_percentage_limit, default=0.5,
-                        help='if plagiarism percentage of the function >= value then output detail (default: 0.5)')
-    args = parser.parse_args()
-    pycode_list = [(f.name, f.read()) for f in args.files]
+    file1 = open(file1path, 'rb')
+    file2 = open(file2path, 'rb')
+
+    argsfiles = [file1path, file2path]
+    #parser = ArgParser(description='A simple plagiarism detection tool for python code')
+    #parser.add_argument('files', type=get_file, nargs=2,
+    #                  help='the input files')
+    #parser.add_argument('-l', type=check_line_limit, default=4,
+    #                    help='if AST line of the function >= value then output detail (default: 4)')
+    #parser.add_argument('-p', type=check_percentage_limit, default=0.5,
+    #                    help='if plagiarism percentage of the function >= value then output detail (default: 0.5)')
+    #args = parser.parse_args()
+    pycode_list = [(file1.name, file1.read()), (file2.name, file2.read())]
+    #print(pycode_list)
     try:
         results = detect([c[1] for c in pycode_list])
     except NoFuncException as ex:
         print('error: can not find functions from {}.'.format(pycode_list[ex.source][0]))
         return
 
+    code_similarity = 0
     for index, func_ast_diff_list in results:
         print('ref: {}'.format(pycode_list[0][0]))
         print('candidate: {}'.format(pycode_list[index][0]))
@@ -554,18 +561,22 @@ def main():
                 sum_plagiarism_count / float(sum_total_count) * 100,
                 sum_plagiarism_count,
                 sum_total_count))
-        print('candidate function plagiarism details (AST lines >= {} and plagiarism percentage >= {}):'.format(
-                args.l,
-                args.p,
-        ))
-        output_count = 0
-        for func_diff_info in func_ast_diff_list:
-            if len(func_diff_info.info_ref.func_ast_lines) >= args.l and func_diff_info.plagiarism_percent >= args.p:
-                output_count = output_count + 1
-                print(func_diff_info)
-        if output_count == 0:
-            print('<empty results>')
-
+        code_similarity = sum_plagiarism_count / float(sum_total_count) * 100
+    return code_similarity
+        #print('candidate function plagiarism details (AST lines >= {} and plagiarism percentage >= {}):'.format(
+        #        args.l,
+        #        args.p,
+        #))
+        #output_count = 0
+        #for func_diff_info in func_ast_diff_list:
+        #    if len(func_diff_info.info_ref.func_ast_lines) >= args.l and func_diff_info.plagiarism_percent >= args.p:
+        #        output_count = output_count + 1
+        #        print(func_diff_info)
+        #if output_count == 0:
+        #    print('<empty results>')
 
 if __name__ == '__main__':
-    main()
+    filepath1 = 'D:\數據科學基礎\\best-partner\\test\original_case.py'
+    filepath2 = 'D:\數據科學基礎\\best-partner\\test\plagiarize_case.py'
+    code_similarity = inspect(filepath1, filepath2)
+    print("code_similarity: " + str(code_similarity))
