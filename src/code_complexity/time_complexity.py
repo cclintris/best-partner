@@ -116,7 +116,6 @@ class TimeChecker:
                 comp_list = complexity.split(' ')[:-1]
                 rec_count = 0
                 rec_exp = 1
-                rec_tail = ''
                 for frac in comp_list:
                     if re.match("[0-9]*[*]n/2", frac):
                         a = frac.split('*')
@@ -138,7 +137,7 @@ class TimeChecker:
                     return res
                 else:
                     if rec_exp > 1:
-                        return "n^" + str(rec_exp)
+                        return str(rec_exp) + "^n"
                     else:
                         return "n"
 
@@ -189,25 +188,75 @@ class TimeChecker:
 
             def integrate(c1: str, c2: str) -> str:
                 """
-                两个复杂度相加
-                :param c1: 复杂度1
-                :param c2: 复杂度2
+                两个复杂度相乘;复杂度具有以下几种格式：
+                1. [n|m]
+                2. n^[0-9]*
+                3. log_[n|m]
+                4. [0-9]*^n
+                :param c1: 复杂度1，添加项
+                :param c2: 复杂度2，基项
                 :return:
                 """
-                return ''
+                patterns = ['n^[0-9]*', 'log[0-9]*_n', 'log[0-9]*_m']
+                matches = [
+                    re.match(patterns[0], c2), c2[0] == 'n' and c2.count('^') == 0,
+                    re.search(patterns[1], c2), re.search(patterns[2], c2)
+                ]
+                if c1 == 'n':
+                    if matches[0]:
+                        c = c2.split('^')
+                        return c[0] + str(int(c[1]) + 1)
+                    elif matches[1]:
+                        return "n^2" + c2[1:]
+                    else:
+                        return c1 + c2
+                if re.match(patterns[0], c1):
+                    if matches[0]:
+                        c = c2.split('^')
+                        return c[0] + str(int(c[1]) + int(c1.split('^')[1]))
+                    elif matches[1]:
+                        return "n^" + str(int(c1.split('^')[1]) + 1) + c2[1:]
+                    else:
+                        return c1 + c2
+                if re.match(patterns[1], c1):
+                    if matches[2]:
+                        a1 = int(re.search('log[0-9]*', c1).group()[3:])
+                        a2 = int(re.search('log[0-9]*', c2).group()[3:])
+                        return "log" + str(a1 + a2) + "_n"
+                    else:
+                        return c2 + c1
+                if re.match(patterns[2], c1):
+                    if matches[3]:
+                        a1 = int(re.search('log[0-9]*', c1).group()[3:])
+                        a2 = int(re.search('log[0-9]*', c2).group()[3:])
+                        return "log" + str(a1 + a2) + "_m"
+                    else:
+                        return c2 + c1
+                return c1 + c2
 
             def max_comp() -> str:
                 """
-                查找列表中代表复杂度最高的字符串
+                查找字典中代表复杂度最高的字符串:只需要查找与该复杂度所有深度相等的行中复杂度最大的一个即可
+                依次比照以下大小
+                1. n指数    [0-9]*^n
+                2. n幂函数  n^[0-9]*
+                3. n        n
+                4. n对数    log[0-9]*_n
+                5. m        m
+                6. m对数    log[0-9]*_m
                 :return:
                 """
+                comps1 = list(record2comp.keys())
+                if len(comps1) == 1:
+                    return str(comps1[0])
+
                 return ''
 
             for i in range(method_begin + 1, method_end):
                 temp_level = self.indentation_structure[i]
                 # 缩进层下落则增加复杂度，缩进层上浮则弹出复杂度
                 if temp_level > indentation_level:
-                    comp_record.append(integrate(comp_record[-1], complexity_tag[i]))
+                    comp_record.append(integrate(complexity_tag[i], comp_record[-1]))
                 else:
                     temp_record = comp_record.pop(-1)
                     max_level = max(record2comp.values())
