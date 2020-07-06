@@ -8,6 +8,8 @@ import argparse
 import itertools
 from collections import Counter
 import zss
+import K_gram
+import hash
 
 # avoid using six to keep dependency clean
 if sys.version_info >= (3, 3):
