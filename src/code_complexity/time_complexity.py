@@ -19,11 +19,11 @@ class TimeChecker:
         # 常见递归表单，由指数、系数和尾数构成元组项，对应复杂度
         self.complexity_list = {
             (-1, 1, '1'): "log_n", (-1, 2, '1'): "n", (-1, 2, 'n'): "n*log_n", (1, 1, '1'): "n",
-            (1, 1, 'n'): "n^2", (1, 2, 'n'): "2^n", (2, 1, '1'): "n^2", (2, 2, '1'): "n^2*log_n"
+            (1, 1, 'n'): "n^2", (1, 2, '1'): "2^n", (2, 1, '1'): "n^2", (2, 2, '1'): "n^2*log_n"
         }
         # 常见复杂度表单，顺序依次为n指数、n幂函数、n、n对数、m、m对数
         self.to_compare = [
-            "[0-9]*^n", "n^[0-9]*", "n", "log[0-9]*_n", "m", "log[0-9]*_m"
+            "[0-9]*\\^n", "n\\^[0-9]*", "n", "log[0-9]*_n", "m", "log[0-9]*_m"
         ]
 
     def __len__(self):
@@ -113,22 +113,22 @@ class TimeChecker:
                 """
                 在代码处理结束后对complexity中的记录进行处理和匹配;默认递归中不会出现减号和除号在统一调用中匹配成功的情况
                 可能出现的匹配模式如下所示：
-                1. [[0-9]*[*]n^[0-9]*[ ]]*[n1]
-                2. [[0-9]*[*]n/2[ ]]*[n1]
+                1. [[0-9]*[*]?n^[0-9]*[ ]]*[n1]
+                2. [[0-9]*[*]?n/2[ ]]*[n1]
                 :return:
                 """
                 comp_list = complexity.split(' ')[:-1]
                 rec_count = 0
                 rec_exp = 1
                 for frac in comp_list:
-                    if re.match("[0-9]*[*]n/2", frac):
+                    if re.match("[0-9]*[*]?n/2", frac):
                         a = frac.split('*')
                         if len(a) > 1:
                             rec_count += int(a[0])
                         else:
                             rec_count += 1
                         rec_exp = -1
-                    elif re.match("[0-9]*[*]n[\^]*[0-9]*", frac):
+                    elif re.match("[0-9]*[*]?n\\^*[0-9]*", frac):
                         a = frac.split('*')
                         if len(a) > 1:
                             rec_count += int(a[0])
@@ -149,7 +149,7 @@ class TimeChecker:
                 # 代码中仍存在自递归调用时
                 rec_start = has_rec.start()
                 rec_params = re.search("[^()]*", code[has_rec.end() + 1:])
-                rec_end = rec_params.end() + 1
+                rec_end = has_rec.end() + rec_params.end() + 1
                 rec_params = rec_params.group().split(',')
                 for rec_param in rec_params:
                     if not rec_param.lstrip('-').isdigit():
@@ -178,7 +178,8 @@ class TimeChecker:
                 complexity += 'n '
             else:
                 complexity += '1 '
-            complexity_tag[rec_index] = deal_comp()
+            # 认定任何递归调用函数行数大于一行，将递归复杂度标记在递归调用的上一行
+            complexity_tag[rec_index - 1] = deal_comp()
             return
 
         def integrate_complexity() -> str:
@@ -201,7 +202,7 @@ class TimeChecker:
                 :param c2: 复杂度2，基项
                 :return:
                 """
-                patterns = ['n^[0-9]*', 'log[0-9]*_n', 'log[0-9]*_m']
+                patterns = ['n\\^[0-9]*', 'log[0-9]*_n', 'log[0-9]*_m']
                 matches = [
                     re.match(patterns[0], c2), re.match('n', c2) and c2.count('^') == 0,
                     re.search(patterns[1], c2), re.search(patterns[2], c2)
@@ -213,7 +214,7 @@ class TimeChecker:
                 if c1 == 'n':
                     if matches[0]:
                         c = c2.split('^')
-                        return c[0] + str(int(c[1]) + 1)
+                        return c[0] + '^' + str(int(c[1]) + 1)
                     elif matches[1]:
                         return "n^2" + c2[1:]
                     else:
@@ -260,21 +261,21 @@ class TimeChecker:
                 for j in range(len(comp)):
                     comp[j] = str(comp[j]).split('*')
                 for p in self.to_compare:
+                    if len(comp) == 1:
+                        return '*'.join(comp[0])
                     flag = False
                     candi = []
                     for c in comp:
-                        is_max = False
                         for w in c:
                             if re.match(p, w):
                                 flag = True
-                                is_max = True
-                        if flag and not is_max:
-                            candi.append(c)
-                    if len(candi) == len(comp) or len(comp) == 1:
-                        return candi[0]
-                    else:
-                        for ca in candi:
-                            comp.remove(ca)
+                                candi.append(True)
+                            else:
+                                candi.append(False)
+                    if flag:
+                        for j in range(len(candi) - 1, -1, -1):
+                            if not candi[j]:
+                                comp.pop(j)
                 return 'n'
 
             record2comp[complexity_tag[method_begin + 1]] = self.indentation_structure[method_begin + 1]
@@ -283,14 +284,13 @@ class TimeChecker:
                 # 缩进层下落则增加复杂度，缩进层上浮则弹出复杂度
                 if temp_level > indentation_level:
                     comp_record.append(integrate(complexity_tag[i - 1], comp_record[-1]))
+                    record2comp[comp_record[-1]] = temp_level
                 elif temp_level < indentation_level:
                     temp_record = comp_record.pop(-1)
                     max_level = max(record2comp.values())
                     # 当前深度与最大深度相同则添加复杂度串，更深则清空后添加复杂度串，较浅则不添加
-                    if temp_level >= max_level:
-                        if temp_level > max_level:
-                            record2comp.clear()
-                        record2comp[temp_record] = temp_level
+                    record2comp = {k: v for k, v in record2comp.items() if v == max_level}
+                    record2comp[temp_record] = temp_level
                 indentation_level = temp_level
             return max_comp()
 
@@ -375,6 +375,6 @@ class TimeChecker:
 
 
 if __name__ == '__main__':
-    t = TimeChecker("../grouping_And_Statistics.py")
+    t = TimeChecker("time_comp_test.py")
     print(t.deal_with_file())
     # print(deal_with_file("time_complexity.py"))
