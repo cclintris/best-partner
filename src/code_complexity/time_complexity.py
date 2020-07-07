@@ -21,6 +21,10 @@ class TimeChecker:
             (-1, 1, '1'): "log_n", (-1, 2, '1'): "n", (-1, 2, 'n'): "n*log_n", (1, 1, '1'): "n",
             (1, 1, 'n'): "n^2", (1, 2, 'n'): "2^n", (2, 1, '1'): "n^2", (2, 2, '1'): "n^2*log_n"
         }
+        # 常见复杂度表单，顺序依次为n指数、n幂函数、n、n对数、m、m对数
+        self.to_compare = [
+            "[0-9]*^n", "n^[0-9]*", "n", "log[0-9]*_n", "m", "log[0-9]*_m"
+        ]
 
     def __len__(self):
         return len(self.codes)
@@ -199,9 +203,13 @@ class TimeChecker:
                 """
                 patterns = ['n^[0-9]*', 'log[0-9]*_n', 'log[0-9]*_m']
                 matches = [
-                    re.match(patterns[0], c2), c2[0] == 'n' and c2.count('^') == 0,
+                    re.match(patterns[0], c2), re.match('n', c2) and c2.count('^') == 0,
                     re.search(patterns[1], c2), re.search(patterns[2], c2)
                 ]
+                if c1 == '':
+                    return c2
+                if c2 == '':
+                    return c1
                 if c1 == 'n':
                     if matches[0]:
                         c = c2.split('^')
@@ -209,7 +217,7 @@ class TimeChecker:
                     elif matches[1]:
                         return "n^2" + c2[1:]
                     else:
-                        return c1 + c2
+                        return c1 + '*' + c2
                 if re.match(patterns[0], c1):
                     if matches[0]:
                         c = c2.split('^')
@@ -217,22 +225,22 @@ class TimeChecker:
                     elif matches[1]:
                         return "n^" + str(int(c1.split('^')[1]) + 1) + c2[1:]
                     else:
-                        return c1 + c2
+                        return c1 + '*' + c2
                 if re.match(patterns[1], c1):
                     if matches[2]:
                         a1 = int(re.search('log[0-9]*', c1).group()[3:])
                         a2 = int(re.search('log[0-9]*', c2).group()[3:])
                         return "log" + str(a1 + a2) + "_n"
                     else:
-                        return c2 + c1
+                        return c2 + '*' + c1
                 if re.match(patterns[2], c1):
                     if matches[3]:
                         a1 = int(re.search('log[0-9]*', c1).group()[3:])
                         a2 = int(re.search('log[0-9]*', c2).group()[3:])
                         return "log" + str(a1 + a2) + "_m"
                     else:
-                        return c2 + c1
-                return c1 + c2
+                        return c2 + '*' + c1
+                return c1 + '*' + c2
 
             def max_comp() -> str:
                 """
@@ -246,18 +254,36 @@ class TimeChecker:
                 6. m对数    log[0-9]*_m
                 :return:
                 """
-                comps1 = list(record2comp.keys())
-                if len(comps1) == 1:
-                    return str(comps1[0])
+                comp = list(record2comp.keys())
+                if len(comp) == 1:
+                    return str(comp[0])
+                for j in range(len(comp)):
+                    comp[j] = str(comp[j]).split('*')
+                for p in self.to_compare:
+                    flag = False
+                    candi = []
+                    for c in comp:
+                        is_max = False
+                        for w in c:
+                            if re.match(p, w):
+                                flag = True
+                                is_max = True
+                        if flag and not is_max:
+                            candi.append(c)
+                    if len(candi) == len(comp) or len(comp) == 1:
+                        return candi[0]
+                    else:
+                        for ca in candi:
+                            comp.remove(ca)
+                return 'n'
 
-                return ''
-
+            record2comp[complexity_tag[method_begin + 1]] = self.indentation_structure[method_begin + 1]
             for i in range(method_begin + 1, method_end):
                 temp_level = self.indentation_structure[i]
                 # 缩进层下落则增加复杂度，缩进层上浮则弹出复杂度
                 if temp_level > indentation_level:
-                    comp_record.append(integrate(complexity_tag[i], comp_record[-1]))
-                else:
+                    comp_record.append(integrate(complexity_tag[i - 1], comp_record[-1]))
+                elif temp_level < indentation_level:
                     temp_record = comp_record.pop(-1)
                     max_level = max(record2comp.values())
                     # 当前深度与最大深度相同则添加复杂度串，更深则清空后添加复杂度串，较浅则不添加
@@ -334,7 +360,7 @@ class TimeChecker:
         for method in methods:
             method_begin = methods[method]
             method_end = self.indentation_structure.index(self.indentation_structure[method_begin], method_begin + 1,
-                                                          codes_len)
+                                                          codes_len + 1)
             method_complexity[method] = self.cal_method_complexity(method, method_begin, method_end)
             for i in range(method_begin, method_end):
                 main_tag[i] = 0
@@ -349,6 +375,6 @@ class TimeChecker:
 
 
 if __name__ == '__main__':
-    t = TimeChecker("../code_similarity/K_gram.py")
+    t = TimeChecker("../grouping_And_Statistics.py")
     print(t.deal_with_file())
     # print(deal_with_file("time_complexity.py"))
