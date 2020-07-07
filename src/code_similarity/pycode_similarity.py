@@ -6,8 +6,9 @@ import difflib
 import operator
 import argparse
 import itertools
-from collections import Counter
 import zss
+from collections import Counter
+from decimal import Decimal
 import K_gram
 import hash
 
@@ -545,8 +546,29 @@ def inspect(file1path, file2path):
     #parser.add_argument('-p', type=check_percentage_limit, default=0.5,
     #                    help='if plagiarism percentage of the function >= value then output detail (default: 0.5)')
     #args = parser.parse_args()
-    pycode_list = [(file1.name, file1.read()), (file2.name, file2.read())]
-    #print(pycode_list)
+
+    """
+    Python code pre-process.
+    :Guarantee every piece of code begins with a def()
+    :Calculate the AST tree of code from perspective of methods
+    :Default method paradigm is "def f()", see line 560, 561
+    """
+    tuple_file1 = (file1.name, file1.read())
+    tuple_file2 = (file2.name, file2.read())
+    list_file1 = [x for x in tuple_file1]
+    list_file2 = [x for x in tuple_file2]
+    list_file1[1] = str(b'def f():\r\n' + list_file1[1], encoding="utf-8")
+    list_file2[1] = str(b'def f():\r\n' + list_file2[1], encoding="utf-8")
+    list1 = list_file1[1].split("\n")
+    list2 = list_file2[1].split("\n")
+    list_file1[1] = "\n    ".join(list1)
+    list_file2[1] = "\n    ".join(list2)
+    list_file1[1] = bytes(list_file1[1], encoding="utf-8")
+    list_file2[1] = bytes(list_file2[1], encoding="utf-8")
+    pycode_list_file1 = tuple(list_file1)
+    pycode_list_file2 = tuple(list_file2)
+    pycode_list = [pycode_list_file1, pycode_list_file2]
+
     try:
         results = detect([c[1] for c in pycode_list])
     except NoFuncException as ex:
@@ -563,22 +585,25 @@ def inspect(file1path, file2path):
                 sum_plagiarism_count / float(sum_total_count) * 100,
                 sum_plagiarism_count,
                 sum_total_count))
-        code_similarity = sum_plagiarism_count / float(sum_total_count) * 100
+        code_similarity = Decimal(sum_plagiarism_count / float(sum_total_count) * 100).quantize(Decimal("0.00"))
     return code_similarity
-        #print('candidate function plagiarism details (AST lines >= {} and plagiarism percentage >= {}):'.format(
-        #        args.l,
-        #        args.p,
-        #))
-        #output_count = 0
-        #for func_diff_info in func_ast_diff_list:
-        #    if len(func_diff_info.info_ref.func_ast_lines) >= args.l and func_diff_info.plagiarism_percent >= args.p:
-        #        output_count = output_count + 1
-        #        print(func_diff_info)
-        #if output_count == 0:
-        #    print('<empty results>')
+    #print('candidate function plagiarism details (AST lines >= {} and plagiarism percentage >= {}):'.format(
+    #        args.l,
+    #        args.p,
+    #))
+    #output_count = 0
+    #for func_diff_info in func_ast_diff_list:
+    #    if len(func_diff_info.info_ref.func_ast_lines) >= args.l and func_diff_info.plagiarism_percent >= args.p:
+    #        output_count = output_count + 1
+    #        print(func_diff_info)
+    #if output_count == 0:
+    #    print('<empty results>')
+
+
 
 if __name__ == '__main__':
     filepath1 = 'D:\數據科學基礎\\best-partner\\test\original_case.py'
     filepath2 = 'D:\數據科學基礎\\best-partner\\test\plagiarize_case.py'
     code_similarity = inspect(filepath1, filepath2)
     print("code_similarity: " + str(code_similarity))
+
