@@ -42,29 +42,6 @@ class FuncNodeCollector(ast.NodeTransformer):
     @staticmethod
     def _mark_docstring_sub_nodes(node):
         """
-        Inspired by ast.get_docstring, mark all docstring sub nodes.
-
-        Case1:
-        regular docstring of function/class/module
-
-        Case2:
-        def foo(self):
-            '''pure string expression'''
-            for x in self.contents:
-                '''pure string expression'''
-                print x
-            if self.abc:
-                '''pure string expression'''
-                pass
-
-        Case3:
-        def foo(self):
-            if self.abc:
-                print('ok')
-            else:
-                '''pure string expression'''
-                pass
-
         :param node: every ast node
         :return:
         """
@@ -201,12 +178,6 @@ class FuncNodeCollector(ast.NodeTransformer):
 class FuncInfo(object):
     """
     Part of the astor library for Python AST manipulation.
-
-    License: 3-clause BSD
-
-    Copyright 2012 (c) Patrick Maupin
-    Copyright 2013 (c) Berker Peksag
-
     """
 
     class NonExistent(object):
@@ -516,7 +487,7 @@ def _profile(fn):
     return _wrapper
 
 
-# @_profile
+# main application interface for users
 def inspect(file1path, file2path):
     def check_line_limit(value):
         ivalue = int(value)
