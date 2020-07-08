@@ -63,3 +63,5 @@ def fibonacci(n):
 
 
 print(fibonacci(5))
+print(loop1(5))
+print(loop3(5))
