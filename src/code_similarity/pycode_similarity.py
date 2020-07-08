@@ -538,14 +538,14 @@ def inspect(file1path, file2path):
     file2 = open(file2path, 'rb')
 
     argsfiles = [file1path, file2path]
-    #parser = ArgParser(description='A simple plagiarism detection tool for python code')
-    #parser.add_argument('files', type=get_file, nargs=2,
+    # parser = ArgParser(description='A simple plagiarism detection tool for python code')
+    # parser.add_argument('files', type=get_file, nargs=2,
     #                  help='the input files')
-    #parser.add_argument('-l', type=check_line_limit, default=4,
+    # parser.add_argument('-l', type=check_line_limit, default=4,
     #                    help='if AST line of the function >= value then output detail (default: 4)')
-    #parser.add_argument('-p', type=check_percentage_limit, default=0.5,
+    # parser.add_argument('-p', type=check_percentage_limit, default=0.5,
     #                    help='if plagiarism percentage of the function >= value then output detail (default: 0.5)')
-    #args = parser.parse_args()
+    # args = parser.parse_args()
 
     """
     Python code pre-process.
@@ -587,23 +587,22 @@ def inspect(file1path, file2path):
                 sum_total_count))
         code_similarity = Decimal(sum_plagiarism_count / float(sum_total_count) * 100).quantize(Decimal("0.00"))
     return code_similarity
-    #print('candidate function plagiarism details (AST lines >= {} and plagiarism percentage >= {}):'.format(
+    # print('candidate function plagiarism details (AST lines >= {} and plagiarism percentage >= {}):'.format(
     #        args.l,
     #        args.p,
-    #))
-    #output_count = 0
-    #for func_diff_info in func_ast_diff_list:
+    # ))
+    # output_count = 0
+    # for func_diff_info in func_ast_diff_list:
     #    if len(func_diff_info.info_ref.func_ast_lines) >= args.l and func_diff_info.plagiarism_percent >= args.p:
     #        output_count = output_count + 1
     #        print(func_diff_info)
-    #if output_count == 0:
+    # if output_count == 0:
     #    print('<empty results>')
-
 
 
 if __name__ == '__main__':
     filepath1 = 'D:\數據科學基礎\\best-partner\\test\original_case.py'
     filepath2 = 'D:\數據科學基礎\\best-partner\\test\plagiarize_case.py'
-    code_similarity = inspect(filepath1, filepath2)
-    print("code_similarity: " + str(code_similarity))
+    code_similarity_main = inspect(filepath1, filepath2)
+    print("code_similarity: " + str(code_similarity_main))
 
