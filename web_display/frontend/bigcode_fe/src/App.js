@@ -1,10 +1,12 @@
 import React from 'react';
 import './App.css';
+import Routes from './Routes'
+import history from './history'
 
 function App() {
   return (
     <div className="App">
-      bigcode frontend
+      <Routes></Routes>
     </div>
   );
 }
