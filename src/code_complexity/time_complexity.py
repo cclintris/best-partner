@@ -2,6 +2,7 @@ import re
 from collections import defaultdict
 
 
+# TODO 本时间复杂度处理器没有实现关于O(1)复杂度的处理并将O(1)置为了空字符''，详情见__init__对complexity_tag的初始化
 class TimeChecker:
     def __init__(self, file_path: str):
         # 方法只能检测.py文件
@@ -9,6 +10,9 @@ class TimeChecker:
             print("File is not a python file.")
             return
         self.codes = open(file_path, 'r', encoding="utf-8").readlines()
+        for i in range(len(self.codes) - 1, -1, -1):
+            if re.match('#', self.codes[i].lstrip()):
+                self.codes.pop(i)
         # 构建缩进树
         self.indentation_structure = []
         for i in range(len(self)):
@@ -37,11 +41,6 @@ class TimeChecker:
         1. 允许检查嵌套循环的复杂度;
         2. 允许检查自递归调用的复杂度;
         3. 方法的复杂度由自身的复杂度和同一文件中其他方法调用产生的复杂度结合得出;
-        该方法有以下简化流程的思路：
-        1. 该方法将忽略任何引自其他文件的方法复杂度，将其视为O(1);
-        2. 该方法将传入参数产生的for循环均视为O(n)复杂度，非参数产生的for循环均视为O(m)复杂度，原则上m<<n;
-        3. 该方法将传入参数产生且不含有整除条件的while循环均视为O(n)复杂度，非参数产生的while循环均视为O(m)复杂度，
-           带有二分条件的分别视为O(log_n)和O(log_m)复杂度
         :param method: 检查方法的名字
         :param method_begin: 方法的起始位置
         :param method_end: 方法的结束位置
@@ -172,6 +171,7 @@ class TimeChecker:
         :param main_codes: main函数的代码
         :return: main的复杂度
         """
+        # TODO 对主函数逻辑的处理进行修改和优化 该方法已移交给薛人玮
         main_indentation = []
         for i in range(len(main_codes)):
             main_indentation.append((len(main_codes[i]) - len(main_codes[i].lstrip())) // 4)
@@ -202,9 +202,6 @@ class TimeChecker:
         for i in range(len(main_codes)):
             code_line = main_codes[i]
             for method in self.methods_complexity:
-                # method_define = methods[method]
-                # if i == method_define:
-                #     continue
                 call_pattern = method + "[(][^()]*[)]"
                 method_call = re.search(call_pattern, code_line)
                 if method_call:
@@ -214,6 +211,11 @@ class TimeChecker:
     def deal_loop(self, loop_type: str, loop_index: int, params: list, codes: list, complexity_tag: list):
         """
         根据缩进树在缩进层级上标记出独立复杂度
+        该方法有以下简化流程的思路：
+        1. 该方法将忽略任何引自其他文件的方法复杂度，将其视为O(1);
+        2. 该方法将传入参数产生的for循环均视为O(n)复杂度，非参数产生的for循环均视为O(m)复杂度，原则上m<<n;
+        3. 该方法将传入参数产生且不含有整除条件的while循环均视为O(n)复杂度，非参数产生的while循环均视为O(m)复杂度，
+           带有二分条件的分别视为O(log_n)和O(log_m)复杂度
         :param loop_type: 循环关键字的种类
         :param loop_index: 循环关键字的所在行号
         :param params: 循环关键字所持有的参数列表
@@ -229,6 +231,7 @@ class TimeChecker:
                 complexity_tag[loop_index] = 'm'
             return
         elif loop_type == "while":
+            # 出现除号表示具有二分性质
             for param in params:
                 if re.search(param, self.codes[loop_index]):
                     if codes[loop_index].count('/'):
@@ -341,6 +344,13 @@ class TimeChecker:
                             comp.pop(j)
             return 'n'
 
+        # TODO 对进入integrate和max_comp函数的预处理逻辑有待优化,初步设想如下
+        """
+        针对缩进树的结构，有：
+        1. 不同深度的情况下，单一代码的复杂度一定大于它的上一层循环结构(可以忽略任意代码的上层项)
+        2. 不同深度的情况下，单一代码的复杂度可能小于与上一层循环同层的其他代码/调用(不能忽略上层同级项项)
+        3. 相同深度的情况下，单一代码的复杂度可能小于与自身同层的其他代码(不能忽略同层同级项)
+        """
         record2comp[complexity_tag[begin + 1]] = indentation_structure[begin + 1]
         for i in range(begin + 1, end):
             temp_level = indentation_structure[i]
