@@ -18,26 +18,36 @@
   line-height: 100px;
   color: cadetblue;
   text-align: left;
-  padding: 0 60px;
+  padding: 0 50px;
+}
+
+.header-text {
+  margin-left: 10px;
 }
 
 .main {
   padding: 0 80px;
   height: 70%;
-  background-color: aliceblue;
+  background-color: white;
+  border-style: groove;
+  border-radius: 2px;
 }
 
 .footer {
+  padding: 0 10px;
   height: 10%;
   background-color: azure;
+}
+
+.footer-text {
+  font-size: 15px;
 }
 
 .startlayout {
   text-align: left;
 }
 
-#inputStudentid {
+#inputid {
   width: 300px;
   text-align: left;
 }
-
