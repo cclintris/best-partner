@@ -18,17 +18,13 @@ class Checker:
         self.indentation_structure.append(0)
         self.methods = {}
         self.methods_complexity = {}
-        self.complexity_tag = ['' for i in range(len(self))]
+        self.complexity_tag = [CompStr('1') for i in range(len(self))]
         self.reserved_words = ["for", "while"]
         # 常见递归表单，由指数、系数和尾数构成元组项，对应复杂度
         self.complexity_list = {
             (-1, 1, '1'): "log_n", (-1, 2, '1'): "n", (-1, 2, 'n'): "n*log_n", (1, 1, '1'): "n",
             (1, 1, 'n'): "n^2", (1, 2, '1'): "2^n", (2, 1, '1'): "n^2", (2, 2, '1'): "n^2*log_n"
         }
-        # 常见复杂度表单，顺序依次为n指数、n幂函数、n、n对数、m、m对数
-        self.to_compare = [
-            "[0-9]*\\^n", "n\\^[0-9]*", "n", "log[0-9]*_n", "m", "log[0-9]*_m"
-        ]
 
     def __len__(self):
         return len(self.codes)
@@ -68,7 +64,7 @@ class Checker:
             if tag == 1 and self.codes[i] != "\n":
                 main_codes.append(self.codes[i])
         main_complexity = self.cal_main_complexity(main_codes)
-        return main_complexity
+        return main_complexity.value
 
     def cal_method_complexity(self, method, method_begin, method_end):
         pass
@@ -77,14 +73,79 @@ class Checker:
         pass
 
 
-class Complexity:
+class CompStr:
+    patterns = ['n\\^[0-9]*', 'log[0-9]*_n', 'log[0-9]*_m']
+    # 常见复杂度表单，顺序依次为n指数、n幂函数、n、n对数、m、m对数
+    to_compare = [
+        "[0-9]*\\^n", "n\\^[0-9]*", "n", "log[0-9]*_n", "m", "log[0-9]*_m"
+    ]
+
     def __init__(self, comp: str):
         self.value = comp
 
     def __mul__(self, other):
+        """
+        两个复杂度相乘;复杂度具有以下几种格式：
+        1. [n|m]
+        2. n^[0-9]*
+        3. log_[n|m]
+        4. [0-9]*^n
+        :return:
+        """
         # TODO
-        return 0
+        c1 = self.value
+        c2 = other.value
+        matches = [
+            re.match(self.patterns[0], c2), re.match('n', c2) and c2.count('^') == 0,
+            re.search(self.patterns[1], c2), re.search(self.patterns[2], c2)
+        ]
+        if c1 == '1':
+            return CompStr(c2)
+        if c2 == '1':
+            return CompStr(c1)
+        if c1 == 'n':
+            if matches[0]:
+                c = c2.split('^')
+                return CompStr(c[0] + '^' + str(int(c[1]) + 1))
+            elif matches[1]:
+                return CompStr("n^2" + c2[1:])
+            else:
+                return CompStr(c1 + '*' + c2)
+        if re.match(self.patterns[0], c1):
+            if matches[0]:
+                c = c2.split('^')
+                return CompStr(c[0] + str(int(c[1]) + int(c1.split('^')[1])))
+            elif matches[1]:
+                return CompStr("n^" + str(int(c1.split('^')[1]) + 1) + c2[1:])
+            else:
+                return CompStr(c1 + '*' + c2)
+        if re.match(self.patterns[1], c1):
+            if matches[2]:
+                a1 = int(re.search('log[0-9]*', c1).group()[3:])
+                a2 = int(re.search('log[0-9]*', c2).group()[3:])
+                return CompStr("log" + str(a1 + a2) + "_n")
+            else:
+                return CompStr(c2 + '*' + c1)
+        if re.match(self.patterns[2], c1):
+            if matches[3]:
+                a1 = int(re.search('log[0-9]*', c1).group()[3:])
+                a2 = int(re.search('log[0-9]*', c2).group()[3:])
+                return CompStr("log" + str(a1 + a2) + "_m")
+            else:
+                return CompStr(c2 + '*' + c1)
+        return CompStr(c1 + '*' + c2)
 
     def __cmp__(self, other):
+        """
+        查找字典中代表复杂度最高的字符串:比较两个复杂度的大小
+        依次比照以下大小
+        1. n指数    [0-9]*^n
+        2. n幂函数  n^[0-9]*
+        3. n        n
+        4. n对数    log[0-9]*_n
+        5. m        m
+        6. m对数    log[0-9]*_m
+        :return:
+        """
         # TODO
-        return 0
+        return 1

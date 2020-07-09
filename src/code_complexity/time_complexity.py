@@ -1,12 +1,13 @@
 import re
-import Complexity
+from Complexity import Checker
+from Complexity import CompStr
 from collections import defaultdict
 
 
 # TODO 本时间复杂度处理器没有实现关于O(1)复杂度的处理并将O(1)置为了空字符''，详情见__init__对complexity_tag的初始化
-class TimeChecker(Complexity.Checker):
+class TimeChecker(Checker):
 
-    def cal_method_complexity(self, method: str, method_begin: int, method_end: int) -> str:
+    def cal_method_complexity(self, method: str, method_begin: int, method_end: int):
         """
         计算代码方法时间复杂度的方法，该方法有以下限制：
         1. 允许检查嵌套循环的复杂度;
@@ -112,7 +113,7 @@ class TimeChecker(Complexity.Checker):
             # 代码中无自递归调用时
             is_call = False
             for name in self.methods:
-                is_call = is_call | (re.search(name, code) is not None)
+                is_call = is_call or (re.search(name, code) is not None)
                 if is_call:
                     break
             if is_call:
@@ -120,7 +121,7 @@ class TimeChecker(Complexity.Checker):
             else:
                 complexity += '1 '
             # 认定任何递归调用函数行数大于一行，将递归复杂度标记在递归调用的上一行
-            self.complexity_tag[rec_index - 1] = deal_comp()
+            self.complexity_tag[rec_index - 1] = CompStr(deal_comp())
             return
 
         for i in range(method_begin + 1, method_end):
@@ -136,7 +137,7 @@ class TimeChecker(Complexity.Checker):
                 deal_recursion(method_line, i)
         return self.integrate_complexity(method_begin, method_end, self.indentation_structure, self.complexity_tag)
 
-    def cal_main_complexity(self, main_codes: list) -> str:
+    def cal_main_complexity(self, main_codes: list):
         """
         计算main函数时间复杂度的方法，该方法通过单文件持有的方法列表计算main函数的方法调用
         :param main_codes: main函数的代码
@@ -146,7 +147,7 @@ class TimeChecker(Complexity.Checker):
         main_indentation = []
         for i in range(len(main_codes)):
             main_indentation.append((len(main_codes[i]) - len(main_codes[i].lstrip())) // 4)
-        main_comp_tag = ['' for i in range(len(main_codes))]
+        main_comp_tag = [CompStr('1') for i in range(len(main_codes))]
         methods_call_index = self.cal_method_call_index(main_codes)
         for k, v in methods_call_index.items():
             for q in v:
@@ -197,23 +198,23 @@ class TimeChecker(Complexity.Checker):
         if loop_type == "for":
             for param in params:
                 if re.search(param, codes[loop_index]):
-                    complexity_tag[loop_index] = 'n'
+                    complexity_tag[loop_index] = CompStr('n')
             if complexity_tag[loop_index] == '':
-                complexity_tag[loop_index] = 'm'
+                complexity_tag[loop_index] = CompStr('m')
             return
         elif loop_type == "while":
             # 出现除号表示具有二分性质
             for param in params:
                 if re.search(param, self.codes[loop_index]):
                     if codes[loop_index].count('/'):
-                        complexity_tag[loop_index] = 'log_n'
+                        complexity_tag[loop_index] = CompStr('log_n')
                     else:
-                        complexity_tag[loop_index] = 'n'
+                        complexity_tag[loop_index] = CompStr('n')
             if complexity_tag[loop_index] == '':
                 if codes[loop_index].count('/'):
-                    complexity_tag[loop_index] = 'log_m'
+                    complexity_tag[loop_index] = CompStr('log_m')
                 else:
-                    complexity_tag[loop_index] = 'm'
+                    complexity_tag[loop_index] = CompStr('m')
             return
         return
 
@@ -228,61 +229,10 @@ class TimeChecker(Complexity.Checker):
         comp_record = [complexity_tag[begin + 1]]
         record2comp = defaultdict(int)
 
-        def integrate(c1: str, c2: str) -> str:
+        # TODO max_comp方法将被重构为Complexity.CompStr中的cmp方法
+        def max_comp():
             """
-            两个复杂度相乘;复杂度具有以下几种格式：
-            1. [n|m]
-            2. n^[0-9]*
-            3. log_[n|m]
-            4. [0-9]*^n
-            :param c1: 复杂度1，添加项
-            :param c2: 复杂度2，基项
-            :return:
-            """
-            patterns = ['n\\^[0-9]*', 'log[0-9]*_n', 'log[0-9]*_m']
-            matches = [
-                re.match(patterns[0], c2), re.match('n', c2) and c2.count('^') == 0,
-                re.search(patterns[1], c2), re.search(patterns[2], c2)
-            ]
-            if c1 == '':
-                return c2
-            if c2 == '':
-                return c1
-            if c1 == 'n':
-                if matches[0]:
-                    c = c2.split('^')
-                    return c[0] + '^' + str(int(c[1]) + 1)
-                elif matches[1]:
-                    return "n^2" + c2[1:]
-                else:
-                    return c1 + '*' + c2
-            if re.match(patterns[0], c1):
-                if matches[0]:
-                    c = c2.split('^')
-                    return c[0] + str(int(c[1]) + int(c1.split('^')[1]))
-                elif matches[1]:
-                    return "n^" + str(int(c1.split('^')[1]) + 1) + c2[1:]
-                else:
-                    return c1 + '*' + c2
-            if re.match(patterns[1], c1):
-                if matches[2]:
-                    a1 = int(re.search('log[0-9]*', c1).group()[3:])
-                    a2 = int(re.search('log[0-9]*', c2).group()[3:])
-                    return "log" + str(a1 + a2) + "_n"
-                else:
-                    return c2 + '*' + c1
-            if re.match(patterns[2], c1):
-                if matches[3]:
-                    a1 = int(re.search('log[0-9]*', c1).group()[3:])
-                    a2 = int(re.search('log[0-9]*', c2).group()[3:])
-                    return "log" + str(a1 + a2) + "_m"
-                else:
-                    return c2 + '*' + c1
-            return c1 + '*' + c2
-
-        def max_comp() -> str:
-            """
-            查找字典中代表复杂度最高的字符串:只需要查找与该复杂度所有深度相等的行中复杂度最大的一个即可
+            查找字典中代表复杂度最高的字符串:比较两个复杂度的大小
             依次比照以下大小
             1. n指数    [0-9]*^n
             2. n幂函数  n^[0-9]*
@@ -293,13 +243,16 @@ class TimeChecker(Complexity.Checker):
             :return:
             """
             comp = list(record2comp.keys())
+            to_compare = [
+                "[0-9]*\\^n", "n\\^[0-9]*", "n", "log[0-9]*_n", "m", "log[0-9]*_m"
+            ]
             if len(comp) == 1:
-                return str(comp[0])
+                return comp[0]
             for j in range(len(comp)):
-                comp[j] = str(comp[j]).split('*')
-            for p in self.to_compare:
+                comp[j] = comp[j].value.split('*')
+            for p in to_compare:
                 if len(comp) == 1:
-                    return '*'.join(comp[0])
+                    return CompStr('*'.join(comp[0]))
                 flag = False
                 candi = []
                 for c in comp:
@@ -313,7 +266,7 @@ class TimeChecker(Complexity.Checker):
                     for j in range(len(candi) - 1, -1, -1):
                         if not candi[j]:
                             comp.pop(j)
-            return 'n'
+            return CompStr('n')
 
         # TODO 对进入integrate和max_comp函数的预处理逻辑有待优化,初步设想如下
         """
@@ -327,7 +280,7 @@ class TimeChecker(Complexity.Checker):
             temp_level = indentation_structure[i]
             # 缩进层下落则增加复杂度，缩进层上浮则弹出复杂度
             if temp_level > indentation_level:
-                comp_record.append(integrate(complexity_tag[i - 1], comp_record[-1]))
+                comp_record.append(complexity_tag[i - 1] * comp_record[-1])
                 record2comp[comp_record[-1]] = temp_level
             elif temp_level < indentation_level:
                 temp_record = comp_record.pop(-1)
@@ -339,6 +292,7 @@ class TimeChecker(Complexity.Checker):
                 record2comp[comp_record[-1]] = temp_level
             indentation_level = temp_level
         return max_comp()
+        # return max(record2comp)
 
 
 if __name__ == '__main__':
