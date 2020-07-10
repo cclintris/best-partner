@@ -13,6 +13,7 @@ class TimeChecker(Checker):
         1. 允许检查嵌套循环的复杂度;
         2. 允许检查自递归调用的复杂度;
         3. 方法的复杂度由自身的复杂度和同一文件中其他方法调用产生的复杂度结合得出;
+        该方法最终会将self的缩进树和复杂度便签列表交由integrate_complexity方法进行处理
         :param method: 检查方法的名字
         :param method_begin: 方法的起始位置
         :param method_end: 方法的结束位置
@@ -139,7 +140,8 @@ class TimeChecker(Checker):
 
     def cal_main_complexity(self, main_codes: list):
         """
-        计算main函数时间复杂度的方法，该方法通过单文件持有的方法列表计算main函数的方法调用
+        计算main函数时间复杂度的方法，该方法通过单文件持有的方法列表计算main函数的方法调用：
+        该方法最终会生成一个main函数缩进树和复杂度便签列表，并交由integrate_complexity方法进行处理
         :param main_codes: main函数的代码
         :return: main的复杂度
         """
@@ -200,6 +202,82 @@ class TimeChecker(Checker):
                     complexity_tag[loop_index] = CompStr('m')
             return
         return
+
+    def integrate_complexity(self, begin: int, end: int, indentation_structure: list, complexity_tag: list) -> str:
+        """
+        整合complexity_tag上所记录的单行产生的复杂度，并返回整体复杂度
+        :return: 方法的时间复杂度
+        """
+        if len(complexity_tag) == 1:
+            return complexity_tag[0]
+        indentation_level = indentation_structure[begin + 1]
+        comp_record = [complexity_tag[begin + 1]]
+        record2comp = defaultdict(int)
+
+        # TODO max_comp方法将被重构为Complexity.CompStr中的cmp方法
+        def max_comp():
+            """
+            查找字典中代表复杂度最高的字符串:比较两个复杂度的大小
+            依次比照以下大小
+            1. n指数    [0-9]*^n
+            2. n幂函数  n^[0-9]*
+            3. n        n
+            4. n对数    log[0-9]*_n
+            5. m        m
+            6. m对数    log[0-9]*_m
+            :return:
+            """
+            comp = list(record2comp.keys())
+            to_compare = [
+                "[0-9]*\\^n", "n\\^[0-9]*", "n", "log[0-9]*_n", "m", "log[0-9]*_m"
+            ]
+            if len(comp) == 1:
+                return comp[0]
+            for j in range(len(comp)):
+                comp[j] = comp[j].value.split('*')
+            for p in to_compare:
+                if len(comp) == 1:
+                    return CompStr('*'.join(comp[0]))
+                flag = False
+                candi = []
+                for c in comp:
+                    for w in c:
+                        if re.match(p, w):
+                            flag = True
+                            candi.append(True)
+                        else:
+                            candi.append(False)
+                if flag:
+                    for j in range(len(candi) - 1, -1, -1):
+                        if not candi[j]:
+                            comp.pop(j)
+            return CompStr('n')
+
+        # TODO 对进入integrate和max_comp函数的预处理逻辑有待优化,初步设想如下
+        """
+        针对缩进树的结构，有：
+        1. 不同深度的情况下，单一代码的复杂度一定大于它的上一层循环结构(可以忽略任意代码的上层项)
+        2. 不同深度的情况下，单一代码的复杂度可能小于与上一层循环同层的其他代码/调用(不能忽略上层同级项项)
+        3. 相同深度的情况下，单一代码的复杂度可能小于与自身同层的其他代码(不能忽略同层同级项)
+        """
+        record2comp[complexity_tag[begin + 1]] = indentation_structure[begin + 1]
+        for i in range(begin + 1, end):
+            temp_level = indentation_structure[i]
+            # 缩进层下落则增加复杂度，缩进层上浮则弹出复杂度
+            if temp_level > indentation_level:
+                comp_record.append(complexity_tag[i - 1] * comp_record[-1])
+                record2comp[comp_record[-1]] = temp_level
+            elif temp_level < indentation_level:
+                temp_record = comp_record.pop(-1)
+                max_level = max(record2comp.values())
+                # 当前深度与最大深度相同则添加复杂度串，更深则清空后添加复杂度串，较浅则不添加
+                record2comp = {k: v for k, v in record2comp.items() if v == max_level}
+                record2comp[temp_record] = temp_level
+            else:
+                record2comp[comp_record[-1]] = temp_level
+            indentation_level = temp_level
+        return max_comp()
+        # return max(record2comp)
 
 
 if __name__ == '__main__':
