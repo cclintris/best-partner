@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import 'antd/dist/antd.css'
 import { Start } from '../components/Start'
-import { Tabs, Divider } from 'antd'
+import { Tabs } from 'antd'
 import { DingtalkOutlined } from '@ant-design/icons'
 import { CopyrightCircleOutlined } from '@ant-design/icons'
 

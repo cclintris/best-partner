@@ -7,6 +7,18 @@ import { CheckOutlined } from '@ant-design/icons'
 import { Descriptions } from 'antd'
 
 export class Start extends Component {
+    state = {
+        report_status : {
+            student_name : '林希澄',
+            student_id : '181250083',
+            code_similarity : 25,
+            code_complexity : 'O(n)',
+            overall_access : '菜鸡一个'
+        }
+    }
+
+    report_status_ref = this.state.report_status
+
     confirm = () => {
         console.log("confirm student id")
     }
@@ -25,11 +37,21 @@ export class Start extends Component {
                 </Button>
                 <Divider />
                 <Descriptions title="学生编程评价报告" bordered>
-                    <Descriptions.Item label="学生姓名" span={1}>林希澄</Descriptions.Item>
-                    <Descriptions.Item label="学生学号" span={1}>181250083</Descriptions.Item>
-                    <Descriptions.Item label="代码相似度" span={1}>25%</Descriptions.Item>
-                    <Descriptions.Item label="代码时空复杂度" span={1}>O(n)</Descriptions.Item>
-                    <Descriptions.Item label="整体评价">菜鸡一个</Descriptions.Item>
+                    <Descriptions.Item label="学生姓名" span={1}>
+                        { this.report_status_ref.student_name }
+                    </Descriptions.Item>
+                    <Descriptions.Item label="学生学号" span={1}>
+                        { this.report_status_ref.student_id }
+                    </Descriptions.Item>
+                    <Descriptions.Item label="代码相似度" span={1}>
+                        { this.report_status_ref.code_similarity }%
+                    </Descriptions.Item>
+                    <Descriptions.Item label="代码时空复杂度" span={1}>
+                        { this.report_status_ref.code_complexity }
+                    </Descriptions.Item>
+                    <Descriptions.Item label="整体评价">
+                        { this.report_status_ref.overall_access }
+                    </Descriptions.Item>
                 </Descriptions>
             </div>
         )
