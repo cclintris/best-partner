@@ -1,3 +1,7 @@
+import sys
+sys.path.insert(0, '../../src/code_similarity')
+#import pycode_Similarity
+
 from flask import Flask, jsonify
 app = Flask(__name__)
 
@@ -8,13 +12,20 @@ def after_request(resp):
 
 app.after_request(after_request)
 
-@app.route("/hello")
-def hello():
+@app.route("/report")
+def report():
     # file1path = "D:\數據科學基礎\\best-partner\\test\original_case.py"
     # file2path = "D:\數據科學基礎\\best-partner\\test\plagiarize_case.py"
     # code_similarity = pycode_Similarity.inspect(file1path, file2path)
     # return jsonify({"code_similarity": code_similarity})
-    return jsonify({"about":"hello world"})
+    report = {
+        'student_name' : '林希澄',
+        'student_id' : '181250083',
+        'code_similarity' : 80,
+        'code_complexity' : 'O(n)',
+        'overall_access' : '菜鸡一个'
+    }
+    return jsonify(report)
 
 if __name__ == "__main__":
     app.run(debug=True)
