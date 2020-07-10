@@ -110,8 +110,7 @@ class SpaceChecker(Checker):
         :param code_line: 一行代码
         :return:
         """
-        return re.match("[^\\\\.]*[\\\\.]append", code_line) is not None or re.match("[^[]*[[][^=]*=",
-                                                                                     code_line) is not None
+        return re.match("[^\\\\.]*[\\\\.]append" or "[^[]*[[][^=]*=", code_line) is not None
 
 
 if __name__ == '__main__':
