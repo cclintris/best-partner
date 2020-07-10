@@ -11,7 +11,7 @@ export class Start extends Component {
         report_status : {
             student_name : '林希澄',
             student_id : '181250083',
-            code_similarity : 25,
+            code_similarity : '',
             code_complexity : 'O(n)',
             overall_access : '菜鸡一个'
         }
@@ -23,6 +23,15 @@ export class Start extends Component {
         console.log("confirm student id")
     }
 
+    test_flask = () => {
+        fetch("http://localhost:5000/hello").then(response => 
+            response.json().then(data => {
+                console.log(data)
+            })
+        )
+        console.log("flask react")
+    }
+
     render() {
         return (
             <div className="startlayout">
@@ -32,7 +41,7 @@ export class Start extends Component {
                 <Divider type="vertical"/>
                 <Button type="primary" 
                         icon={<CheckOutlined />} 
-                        onClick={() => this.confirm()}>
+                        onClick={() => this.test_flask()}>
                         确认
                 </Button>
                 <Divider />
