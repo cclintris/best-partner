@@ -1,13 +1,9 @@
 import re
 from Complexity import Checker
 from Complexity import CompStr
-from collections import defaultdict
 
 
 class SpaceChecker(Checker):
-    def __init__(self, filepath):
-        Checker.__init__(self, filepath)
-        self.param_list = defaultdict(CompStr)
 
     def cal_method_complexity(self, method, method_begin, method_end):
         """
