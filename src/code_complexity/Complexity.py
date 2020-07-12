@@ -156,7 +156,7 @@ class CompStr:
                 return CompStr(c2 + '*' + c1)
         return CompStr(c1 + '*' + c2)
 
-    def __cmp__(self, other):
+    def __cmp__(self, a, b):
         """
         查找字典中代表复杂度最高的字符串:比较两个复杂度的大小
         依次比照以下大小
@@ -168,5 +168,71 @@ class CompStr:
         6. m对数    log[0-9]*_m
         :return:
         """
-        # TODO
-        return 1
+        res = ''
+        # 预处理 将n变成n^1
+        for i in range(len(a)):
+            if a[i] == 'n':
+                if i != len(a)-1:
+                    if a[i + 1] == '^':
+                        continue
+                if i != 0:
+                    if a[i - 1] == '^' or a[i - 1] == '_':
+                        continue
+                a_temp = list(a)
+                a_temp.insert(i+1, '^1')
+                a = ''.join(a_temp)
+        for i in range(len(b)):
+            if b[i] == 'n':
+                if i != len(b)-1:
+                    if b[i + 1] == '^':
+                        continue
+                if i != 0:
+                    if b[i - 1] == '^' or b[i - 1] == '_':
+                        continue
+                b_temp = list(b)
+                b_temp.insert(i+1, '^1')
+                b = ''.join(b_temp)
+        # 比较指数
+        index_a = 0
+        for i in range(len(a)):
+            # 此处为依赖处
+            if a[i] == '^':
+                if a[i+1] == 'n':
+                    index_a = int(a[i-1])
+        index_b = 0
+        for i in range(len(b)):
+            # 此处为依赖处
+            if b[i] == '^':
+                if b[i+1] == 'n':
+                    index_b = int(b[i-1])
+        if index_a > index_b:
+            if res == '':
+                res = a
+        elif index_a < index_b:
+            if res == '':
+                res = b
+        # 比较幂函数
+        power_a = 0
+        for i in range(len(a)):
+            if a[i] == '^':
+                if a[i - 1] == 'n':
+                    power_a = int(a[i + 1])
+        power_b = 0
+        for i in range(len(b)):
+            if b[i] == '^':
+                if b[i - 1] == 'n':
+                    power_b = int(b[i + 1])
+        if power_a > power_b:
+            if res == '':
+                res = a
+        elif power_a < power_b:
+            if res == '':
+                res = b
+        if 'log_n' not in b:
+            if res == '':
+                res = a
+        if 'log_n' not in a:
+            if res == '':
+                res = b
+        return res.replace('^1', '')
+
