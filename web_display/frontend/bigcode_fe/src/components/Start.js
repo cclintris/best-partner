@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import 'antd/dist/antd.css'
-import { Input } from 'antd'
-import { Button } from 'antd'
-import { Divider } from 'antd'
+import { Input, Button, Divider, Descriptions } from 'antd'
 import { CheckOutlined } from '@ant-design/icons'
-import { Descriptions } from 'antd'
 
 export class Start extends Component {
     constructor() {

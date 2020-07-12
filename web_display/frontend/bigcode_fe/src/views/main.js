@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import 'antd/dist/antd.css'
 import { Start } from '../components/Start'
+import { Guide } from '../components/Guide'
 import { Tabs } from 'antd'
-import { DingtalkOutlined } from '@ant-design/icons'
-import { CopyrightCircleOutlined } from '@ant-design/icons'
+import { DingtalkOutlined, CopyrightCircleOutlined } from '@ant-design/icons'
 
 const { TabPane } = Tabs
 
@@ -18,7 +18,7 @@ export class main extends Component {
                 <div className="main">
                     <Tabs defaultActiveKey="1" size="large">
                         <TabPane tab="工具介绍" key="1">
-                            README of tool usage
+                            <Guide />
                         </TabPane>
                         <TabPane tab="开始使用" key="2">
                             <Start />
