@@ -26,7 +26,11 @@ class SpaceChecker(Checker):
             for word in self.reserved_words:
                 is_match = re.match(word, method_line)
                 if is_match:
-                    self.deal_loop(i, self.codes, self.indentation_structure, self.complexity_tag)
+                    j = i + 1
+                    while j < method_end and self.indentation_structure[i] < \
+                            self.indentation_structure[j]:
+                        j += 1
+                    self.deal_loop(i, j, self.codes, self.complexity_tag)
             # 扫描是否是自递归方法
             is_recursion = re.search(method, method_line)
             if is_recursion:
@@ -61,30 +65,32 @@ class SpaceChecker(Checker):
             for word in self.reserved_words:
                 is_match = re.match(word, line) is not None or re.search(" " + word + " ", line) is not None
                 if is_match:
-                    self.deal_loop(i, main_codes, main_indentation, main_comp_tag)
+                    j = i + 1
+                    while j < len(main_indentation) and main_indentation[i] < main_indentation[j]:
+                        j += 1
+                    self.deal_loop(i, j, main_codes, main_comp_tag)
         return self.integrate_complexity(-1, len(main_codes), main_indentation, main_comp_tag)
 
-    def deal_loop(self, loop_index: int, codes: list, indentation_structure: list, complexity_tag: list):
+    def deal_loop(self, loop_begin: int, loop_end: int, codes: list, complexity_tag: list):
         """
         处理循环结构对空间复杂度的影响，该方法思路如下：
         1. 出现循环关键字时，扫描该循环下的所有行并调用param_comp，直到缩进树上浮/终止
         2. 扫描的所有行中，param_comp返回True，即包含列表/字典的添加动作，标记为O(n)
         3. 不含有2中所描述的操作时，标记为O(1)
-        :param loop_index: 循环开始的位置
+        :param loop_begin: 循环开始的位置
+        :param loop_end: 循环结束的位置
         :param codes: 要检查的代码样本
-        :param indentation_structure: 代码的缩进树
         :param complexity_tag: 代码的复杂度标签
         :return:
         """
-        loop_loc = loop_index
-        while True:
+        loop_loc = loop_begin
+        while loop_loc < loop_end:
             if self.param_comp(codes[loop_loc]):
-                complexity_tag[loop_index] = CompStr("n")
+                complexity_tag[loop_begin] = CompStr("n")
                 return 1
             loop_loc += 1
-            if loop_loc >= len(codes) or indentation_structure[loop_loc] <= indentation_structure[loop_index]:
-                complexity_tag[loop_index] = CompStr("1")
-                return 0
+        complexity_tag[loop_begin] = CompStr("1")
+        return 0
 
     def integrate_complexity(self, begin: int, end: int, indentation_structure: list, complexity_tag: list) -> CompStr:
         """

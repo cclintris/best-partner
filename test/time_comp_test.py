@@ -63,6 +63,7 @@ def fibonacci(n):
 
 
 def binary_search(n, arr, target):
+    # O(log_n) TODO 在时间复杂度中修改关于while复杂度判定的逻辑
     left = 0
     right = n
     mid = (left + right) // 2
@@ -77,6 +78,7 @@ def binary_search(n, arr, target):
 
 
 def search_bs_06():
+    # O(n) TODO 在时间复杂度中添加对于内嵌方法的判断
     def can_ship(w: list, d: int, lim: int) -> bool:
         cur = lim
         for weight in w:

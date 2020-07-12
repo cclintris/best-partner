@@ -131,7 +131,11 @@ class TimeChecker(Checker):
             for word in self.reserved_words:
                 is_match = re.match(word, method_line)
                 if is_match:
-                    self.deal_loop(word, i, params, self.codes, self.complexity_tag)
+                    j = i + 1
+                    while j < method_end and self.indentation_structure[i] < \
+                            self.indentation_structure[j]:
+                        j += 1
+                    self.deal_loop(word, i, j, params, self.codes, self.complexity_tag)
             # 扫描是否是自递归方法
             is_recursion = re.search(method, method_line)
             if is_recursion:
@@ -160,12 +164,16 @@ class TimeChecker(Checker):
             for word in self.reserved_words:
                 is_match = re.match(word, line)
                 if is_match:
+                    j = i + 1
+                    while j < len(main_indentation) and main_indentation[i] < main_indentation[j]:
+                        j += 1
                     # 把循环本身的条件作为参数
-                    self.deal_loop(word, i, re.search("[(][^()]*[)]", line).group()[1:-1].split(','), main_codes,
+                    self.deal_loop(word, i, j, re.search("[(][^()]*[)]", line).group()[1:-1].split(','), main_codes,
                                    main_comp_tag)
         return self.integrate_complexity(-1, len(main_codes), main_indentation, main_comp_tag)
 
-    def deal_loop(self, loop_type: str, loop_index: int, params: list, codes: list, complexity_tag: list):
+    def deal_loop(self, loop_type: str, loop_begin: int, loop_end: int, params: list, codes: list,
+                  complexity_tag: list):
         """
         根据缩进树在缩进层级上标记出独立复杂度
         该方法有以下简化流程的思路：
@@ -174,7 +182,8 @@ class TimeChecker(Checker):
         3. 该方法将传入参数产生且不含有整除条件的while循环均视为O(n)复杂度，非参数产生的while循环均视为O(m)复杂度，
            带有二分条件的分别视为O(log_n)和O(log_m)复杂度
         :param loop_type: 循环关键字的种类
-        :param loop_index: 循环关键字的所在行号
+        :param loop_begin: 循环关键字的所在行号
+        :param loop_end: 循环结束的位置
         :param params: 循环关键字所持有的参数列表
         :param codes:代码样本
         :param complexity_tag:复杂度标签
@@ -182,25 +191,17 @@ class TimeChecker(Checker):
         """
         if loop_type == "for":
             for param in params:
-                if re.search(param, codes[loop_index]):
-                    complexity_tag[loop_index] = CompStr('n')
-            if complexity_tag[loop_index] == '':
-                complexity_tag[loop_index] = CompStr('m')
-            return
+                if re.search(param, codes[loop_begin]):
+                    complexity_tag[loop_begin] = CompStr('n')
         elif loop_type == "while":
             # 出现除号表示具有二分性质
-            for param in params:
-                if re.search(param, self.codes[loop_index]):
-                    if codes[loop_index].count('/'):
-                        complexity_tag[loop_index] = CompStr('log_n')
-                    else:
-                        complexity_tag[loop_index] = CompStr('n')
-            if complexity_tag[loop_index] == '':
-                if codes[loop_index].count('/'):
-                    complexity_tag[loop_index] = CompStr('log_m')
-                else:
-                    complexity_tag[loop_index] = CompStr('m')
-            return
+            loop_loc = loop_begin
+            while loop_loc < loop_end:
+                if codes[loop_loc].count('/'):
+                    complexity_tag[loop_begin] = CompStr('log_n')
+                    return
+                loop_loc += 1
+            complexity_tag[loop_begin] = CompStr('n')
         return
 
     def integrate_complexity(self, begin: int, end: int, indentation_structure: list, complexity_tag: list) -> str:
@@ -281,6 +282,6 @@ class TimeChecker(Checker):
 
 
 if __name__ == '__main__':
-    t = TimeChecker("time_comp_test.py")
+    t = TimeChecker("../../test/time_comp_test.py")
     print(t.deal_with_file())
     # print(deal_with_file("time_complexity.py"))

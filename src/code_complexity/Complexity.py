@@ -44,7 +44,7 @@ class Checker:
         for i in range(codes_len):
             code_line = self.codes[i]
             if code_line.lstrip()[:3] == "def":
-                method_name = re.match("[^():]*", code_line[4:]).group()
+                method_name = re.match("[^():]*", code_line.lstrip()[4:]).group()
                 methods[method_name] = i
         self.methods = methods
         # 扫描所有方法的时间复杂度，标定所有方法的位置
