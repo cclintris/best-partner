@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Collapse } from 'antd'
 import { QuestionCircleOutlined, TeamOutlined, ToolOutlined, GithubOutlined } from '@ant-design/icons'
 
-const { Panel} = Collapse
+const { Panel } = Collapse
 
 const addIconPanel1 = () => (
     <QuestionCircleOutlined/>
