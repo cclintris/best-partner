@@ -277,8 +277,8 @@ class TimeChecker(Checker):
             else:
                 record2comp[comp_record[-1]] = temp_level
             indentation_level = temp_level
-        return max_comp()
-        # return max(record2comp)
+        # return max_comp()
+        return max(record2comp)
 
 
 if __name__ == '__main__':
