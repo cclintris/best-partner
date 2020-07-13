@@ -52,3 +52,7 @@
   width: 300px;
   text-align: left;
 }
+
+.description-text {
+  text-align: center;
+}

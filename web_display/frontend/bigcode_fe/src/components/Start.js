@@ -44,7 +44,7 @@ export class Start extends Component {
                         确认
                 </Button>
                 <Divider />
-                <Descriptions title="学生编程评价报告" bordered>
+                <Descriptions title="学生编程评价报告" bordered className="description-text">
                     <Descriptions.Item label="学生姓名" span={1}>
                         { this.state.student_name }
                     </Descriptions.Item>

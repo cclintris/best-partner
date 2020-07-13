@@ -39,7 +39,6 @@ export class Guide extends Component {
                         key='1' 
                         header='关于 Code Evaluation Tool' 
                         extra={ addIconPanel1() }>
-                            <p>{ textPanel1 }</p>
                     </Panel>
                     <Panel 
                         key='2' 
