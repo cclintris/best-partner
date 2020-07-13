@@ -10,7 +10,7 @@ class Checker:
             return
         self.codes = open(file_path, 'r', encoding="utf-8").readlines()
         for i in range(len(self.codes) - 1, -1, -1):
-            if re.match('#', self.codes[i].lstrip()):
+            if re.match('#', self.codes[i].lstrip()) or self.codes[i] == "\n":
                 self.codes.pop(i)
         # 构建缩进树
         self.indentation_structure = []
@@ -62,7 +62,7 @@ class Checker:
         main_codes = []
         for i in range(codes_len):
             tag = main_tag[i]
-            if tag == 1 and self.codes[i] != "\n":
+            if tag == 1:
                 main_codes.append(self.codes[i])
         main_complexity = self.cal_main_complexity(main_codes)
         return main_complexity.value
@@ -156,7 +156,7 @@ class CompStr:
                 return CompStr(c2 + '*' + c1)
         return CompStr(c1 + '*' + c2)
 
-    def __cmp__(self, other):
+    def __gt__(self, other):
         """
         查找字典中代表复杂度最高的字符串:比较两个复杂度的大小
         依次比照以下大小

@@ -22,11 +22,6 @@ class TimeChecker(Checker):
         if method in self.methods_complexity:
             return self.methods_complexity[method]
 
-        # 创建保留字列表，复杂度标记;提取参数名
-        params = re.search("[(][^()]*[)]", self.codes[method_begin]).group()[1:-1].split(',')
-        for i in range(len(params)):
-            params[i] = re.match("[^:]*", params[i]).group()
-
         def deal_recursion(code: str, rec_index: int):
             """
             根据递归代码计算递归复杂度，该方法有以下限制：
@@ -135,7 +130,7 @@ class TimeChecker(Checker):
                     while j < method_end and self.indentation_structure[i] < \
                             self.indentation_structure[j]:
                         j += 1
-                    self.deal_loop(word, i, j, params, self.codes, self.complexity_tag)
+                    self.deal_loop(word, i, j, self.codes, self.complexity_tag)
             # 扫描是否是自递归方法
             is_recursion = re.search(method, method_line)
             if is_recursion:
@@ -149,7 +144,6 @@ class TimeChecker(Checker):
         :param main_codes: main函数的代码
         :return: main的复杂度
         """
-        # TODO 对主函数逻辑的处理进行修改和优化 该方法已移交给薛人玮
         main_indentation = []
         for i in range(len(main_codes)):
             main_indentation.append((len(main_codes[i]) - len(main_codes[i].lstrip())) // 4)
@@ -168,11 +162,10 @@ class TimeChecker(Checker):
                     while j < len(main_indentation) and main_indentation[i] < main_indentation[j]:
                         j += 1
                     # 把循环本身的条件作为参数
-                    self.deal_loop(word, i, j, re.search("[(][^()]*[)]", line).group()[1:-1].split(','), main_codes,
-                                   main_comp_tag)
+                    self.deal_loop(word, i, j, main_codes, main_comp_tag)
         return self.integrate_complexity(-1, len(main_codes), main_indentation, main_comp_tag)
 
-    def deal_loop(self, loop_type: str, loop_begin: int, loop_end: int, params: list, codes: list,
+    def deal_loop(self, loop_type: str, loop_begin: int, loop_end: int, codes: list,
                   complexity_tag: list):
         """
         根据缩进树在缩进层级上标记出独立复杂度
@@ -184,15 +177,12 @@ class TimeChecker(Checker):
         :param loop_type: 循环关键字的种类
         :param loop_begin: 循环关键字的所在行号
         :param loop_end: 循环结束的位置
-        :param params: 循环关键字所持有的参数列表
         :param codes:代码样本
         :param complexity_tag:复杂度标签
         :return:
         """
         if loop_type == "for":
-            for param in params:
-                if re.search(param, codes[loop_begin]):
-                    complexity_tag[loop_begin] = CompStr('n')
+            complexity_tag[loop_begin] = CompStr('n')
         elif loop_type == "while":
             # 出现除号表示具有二分性质
             loop_loc = loop_begin
@@ -214,47 +204,6 @@ class TimeChecker(Checker):
         indentation_level = indentation_structure[begin + 1]
         comp_record = [complexity_tag[begin + 1]]
         record2comp = defaultdict(int)
-
-        # TODO max_comp方法将被重构为Complexity.CompStr中的cmp方法
-        def max_comp():
-            """
-            查找字典中代表复杂度最高的字符串:比较两个复杂度的大小
-            依次比照以下大小
-            1. n指数    [0-9]*^n
-            2. n幂函数  n^[0-9]*
-            3. n        n
-            4. n对数    log[0-9]*_n
-            5. m        m
-            6. m对数    log[0-9]*_m
-            :return:
-            """
-            comp = list(record2comp.keys())
-            to_compare = [
-                "[0-9]*\\^n", "n\\^[0-9]*", "n", "log[0-9]*_n", "m", "log[0-9]*_m"
-            ]
-            if len(comp) == 1:
-                return comp[0]
-            for j in range(len(comp)):
-                comp[j] = comp[j].value.split('*')
-            for p in to_compare:
-                if len(comp) == 1:
-                    return CompStr('*'.join(comp[0]))
-                flag = False
-                candi = []
-                for c in comp:
-                    for w in c:
-                        if re.match(p, w):
-                            flag = True
-                            candi.append(True)
-                        else:
-                            candi.append(False)
-                if flag:
-                    for j in range(len(candi) - 1, -1, -1):
-                        if not candi[j]:
-                            comp.pop(j)
-            return CompStr('n')
-
-        # TODO 对进入integrate和max_comp函数的预处理逻辑有待优化,初步设想如下
         """
         针对缩进树的结构，有：
         1. 不同深度的情况下，单一代码的复杂度一定大于它的上一层循环结构(可以忽略任意代码的上层项)
@@ -277,11 +226,9 @@ class TimeChecker(Checker):
             else:
                 record2comp[comp_record[-1]] = temp_level
             indentation_level = temp_level
-        # return max_comp()
         return max(record2comp)
 
 
 if __name__ == '__main__':
     t = TimeChecker("../../test/time_comp_test.py")
     print(t.deal_with_file())
-    # print(deal_with_file("time_complexity.py"))
