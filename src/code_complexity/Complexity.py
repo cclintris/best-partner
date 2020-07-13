@@ -208,11 +208,9 @@ class CompStr:
                 if b[i + 1] == 'n':
                     index_b = int(b[i - 1])
         if index_a > index_b:
-            if res == '':
-                res = a
+            return -1
         elif index_a < index_b:
-            if res == '':
-                res = b
+            return 1
         # 比较幂函数
         power_a = 0
         for i in range(len(a)):
@@ -225,15 +223,10 @@ class CompStr:
                 if b[i - 1] == 'n':
                     power_b = int(b[i + 1])
         if power_a > power_b:
-            if res == '':
-                res = a
+            return -1
         elif power_a < power_b:
-            if res == '':
-                res = b
+            return 1
         if 'log_n' not in b:
-            if res == '':
-                res = a
+            return -1
         if 'log_n' not in a:
-            if res == '':
-                res = b
-        return res.replace('^1', '')
+            return 1
