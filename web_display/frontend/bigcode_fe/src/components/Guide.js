@@ -5,7 +5,7 @@ import { QuestionCircleOutlined, TeamOutlined, ToolOutlined, GithubOutlined } fr
 const { Panel } = Collapse
 
 const addIconPanel1 = () => (
-    <QuestionCircleOutlined/>
+    <QuestionCircleOutlined />
 );
 
 const addIconPanel2 = () => (

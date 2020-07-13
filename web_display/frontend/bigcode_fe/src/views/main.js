@@ -3,7 +3,7 @@ import 'antd/dist/antd.css'
 import { Start } from '../components/Start'
 import { Guide } from '../components/Guide'
 import { Tabs } from 'antd'
-import { DingtalkOutlined, CopyrightCircleOutlined } from '@ant-design/icons'
+import { CopyrightCircleOutlined } from '@ant-design/icons'
 
 const { TabPane } = Tabs
 
@@ -12,7 +12,6 @@ export class main extends Component {
         return (
             <div className="layout">
                 <div className="header">
-                    <DingtalkOutlined></DingtalkOutlined>
                     <span className="header-text">Code Evaluation Tool</span>
                 </div>
                 <div className="main">
