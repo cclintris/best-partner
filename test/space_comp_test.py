@@ -47,6 +47,6 @@ def fibonacci(n):
         return fibonacci(n - 1) + fibonacci(n - 2)
 
 
-print(list1(5))
-print(fibonacci(5))
+# print(list1(5))
+# print(fibonacci(5))
 print(loop(5))

@@ -1,10 +1,8 @@
 import re
-from Complexity import Checker
-from Complexity import CompStr
-from collections import defaultdict
+from complexity import Checker
+from comp_str import CompStr
 
 
-# TODO 本时间复杂度处理器没有实现关于O(1)复杂度的处理并将O(1)置为了空字符''，详情见__init__对complexity_tag的初始化
 class TimeChecker(Checker):
 
     def cal_method_complexity(self, method: str, method_begin: int, method_end: int):
@@ -21,105 +19,6 @@ class TimeChecker(Checker):
         """
         if method in self.methods_complexity:
             return self.methods_complexity[method]
-
-        def deal_recursion(code: str, rec_index: int):
-            """
-            根据递归代码计算递归复杂度，该方法有以下限制：
-            1. 仅仅以常见的递归复杂度为模板估算复杂度，而不进行详尽的变量扫描和计算得出结论;
-            2. 任意自递归调用的参数均被视为n级别;
-            3. 常见的自递归函数复杂度由下列出：
-                T(n)=T(n/2)+O(1)         T(n)=O(log_n)
-                T(n)=T(n-1)+O(1)         T(n)=O(n)
-                T(n)=2*T(n/2)+O(1)       T(n)=O(n)
-                T(n)=2*T(n/2)+O(n)       T(n)=O(n*log_n)
-                T(n)=2*T(n/2)+O(n*log_n) T(n)=O(n*log^2_n)
-                T(n)=T(n-1)+O(n)         T(n)=O(n^2)
-                T(n)=2*T(n-1)+O(1)       T(n)=O(2^n)
-                T(n)=T(n-1)+T(n-2)+O(1)  T(n)=O(2^n)
-                其中计算复杂度时，递归式中若包含对同文件其他函数的调用，将其视为O(n)
-            4. 如果无法计算递归的复杂度，将其视为O(n)
-            :param code: 产生递归的代码
-            :param rec_index: 递归代码所在的行号
-            :return:
-            """
-            if code.count('='):
-                code = code.split('=')[1]
-            complexity = ''
-            has_rec = re.search(method, code)
-
-            def deal_comp() -> str:
-                """
-                在代码处理结束后对complexity中的记录进行处理和匹配;默认递归中不会出现减号和除号在统一调用中匹配成功的情况
-                可能出现的匹配模式如下所示：
-                1. [[0-9]*[*]?n^[0-9]*[ ]]*[n1]
-                2. [[0-9]*[*]?n/2[ ]]*[n1]
-                :return:
-                """
-                comp_list = complexity.split(' ')[:-1]
-                rec_count = 0
-                rec_exp = 1
-                for frac in comp_list:
-                    if re.match("[0-9]*[*]?n/2", frac):
-                        a = frac.split('*')
-                        if len(a) > 1:
-                            rec_count += int(a[0])
-                        else:
-                            rec_count += 1
-                        rec_exp = -1
-                    elif re.match("[0-9]*[*]?n\\^*[0-9]*", frac):
-                        a = frac.split('*')
-                        if len(a) > 1:
-                            rec_count += int(a[0])
-                        else:
-                            rec_count += 1
-                        rec_exp = max(rec_exp, int(frac.split('^')[1]))
-                rec_tail = comp_list[-1]
-                res = self.complexity_list[(rec_exp, rec_count, rec_tail)]
-                if res:
-                    return res
-                else:
-                    if rec_exp > 1:
-                        return str(rec_exp) + "^n"
-                    else:
-                        return "n"
-
-            while has_rec:
-                # 代码中仍存在自递归调用时
-                rec_start = has_rec.start()
-                rec_params = re.search("[^()]*", code[has_rec.end() + 1:])
-                rec_end = has_rec.end() + rec_params.end() + 1
-                rec_params = rec_params.group().split(',')
-                for rec_param in rec_params:
-                    if not rec_param.lstrip('-').isdigit():
-                        # 作为非数字的参数，检查减号、除号以及乘号进行匹配
-                        comp_2add = ''
-                        rec_m = rec_param.count('-')
-                        if rec_m:
-                            comp_2add += ("n^" + str(rec_m) + ' ')
-                        else:
-                            rec_d = rec_param.count('/')
-                            if rec_d:
-                                comp_2add = "n/2 "
-                        rec_mul = re.search('[0-9]*[*]', code[rec_start: rec_end])
-                        if rec_mul:
-                            comp_2add = rec_mul.group() + comp_2add
-                        complexity += comp_2add
-                code = code[:rec_start] + code[rec_end + 1:]
-                has_rec = re.search(method, code)
-            # 代码中无自递归调用时
-            is_call = False
-            for name in self.methods:
-                is_call = is_call or (re.search(name, code) is not None)
-                if is_call:
-                    break
-            if is_call:
-                complexity += 'n '
-            else:
-                complexity += '1 '
-            # 认定任何递归调用函数行数大于一行，将递归复杂度标记在递归调用的上一行
-            self.complexity_tag[rec_index - 1] = CompStr(deal_comp())
-            return
-
         for i in range(method_begin + 1, method_end):
             method_line = self.codes[i].lstrip()
             # 扫描行首是否有循环保留字
@@ -132,40 +31,11 @@ class TimeChecker(Checker):
                         j += 1
                     self.deal_loop(word, i, j, self.codes, self.complexity_tag)
             # 扫描是否是自递归方法
-            is_recursion = re.search(method, method_line)
-            if is_recursion:
-                deal_recursion(method_line, i)
+            self.deal_recursion(method, method_line, i)
         return self.integrate_complexity(method_begin, method_end, self.indentation_structure, self.complexity_tag)
 
-    def cal_main_complexity(self, main_codes: list):
-        """
-        计算main函数时间复杂度的方法，该方法通过单文件持有的方法列表计算main函数的方法调用：
-        该方法最终会生成一个main函数缩进树和复杂度便签列表，并交由integrate_complexity方法进行处理
-        :param main_codes: main函数的代码
-        :return: main的复杂度
-        """
-        main_indentation = []
-        for i in range(len(main_codes)):
-            main_indentation.append((len(main_codes[i]) - len(main_codes[i].lstrip())) // 4)
-        main_comp_tag = [CompStr('1') for i in range(len(main_codes))]
-        methods_call_index = self.cal_method_call_index(main_codes)
-        for k, v in methods_call_index.items():
-            for q in v:
-                main_comp_tag[q] = self.methods_complexity[k]
-        for i in range(len(main_codes)):
-            line = main_codes[i].lstrip()
-            # 扫描行首是否有循环保留字
-            for word in self.reserved_words:
-                is_match = re.match(word, line)
-                if is_match:
-                    j = i + 1
-                    while j < len(main_indentation) and main_indentation[i] < main_indentation[j]:
-                        j += 1
-                    # 把循环本身的条件作为参数
-                    self.deal_loop(word, i, j, main_codes, main_comp_tag)
-        return self.integrate_complexity(-1, len(main_codes), main_indentation, main_comp_tag)
-
-    def deal_loop(self, loop_type: str, loop_begin: int, loop_end: int, codes: list,
+    @staticmethod
+    def deal_loop(loop_type: str, loop_begin: int, loop_end: int, codes: list,
                   complexity_tag: list):
         """
         根据缩进树在缩进层级上标记出独立复杂度
@@ -194,39 +64,112 @@ class TimeChecker(Checker):
             complexity_tag[loop_begin] = CompStr('n')
         return
 
-    def integrate_complexity(self, begin: int, end: int, indentation_structure: list, complexity_tag: list) -> str:
+    def deal_recursion(self, method: str, code: str, rec_index: int):
         """
-        整合complexity_tag上所记录的单行产生的复杂度，并返回整体复杂度
-        :return: 方法的时间复杂度
+        根据递归代码计算递归复杂度，该方法有以下限制：
+        1. 仅仅以常见的递归复杂度为模板估算复杂度，而不进行详尽的变量扫描和计算得出结论;
+        2. 任意自递归调用的参数均被视为n级别;
+        3. 常见的自递归函数复杂度由下列出：
+            T(n)=T(n/2)+O(1)         T(n)=O(log_n)
+            T(n)=T(n-1)+O(1)         T(n)=O(n)
+            T(n)=2*T(n/2)+O(1)       T(n)=O(n)
+            T(n)=2*T(n/2)+O(n)       T(n)=O(n*log_n)
+            T(n)=2*T(n/2)+O(n*log_n) T(n)=O(n*log^2_n)
+            T(n)=T(n-1)+O(n)         T(n)=O(n^2)
+            T(n)=2*T(n-1)+O(1)       T(n)=O(2^n)
+            T(n)=T(n-1)+T(n-2)+O(1)  T(n)=O(2^n)
+            其中计算复杂度时，递归式中若包含对同文件其他函数的调用，将其视为O(n)
+        4. 如果无法计算递归的复杂度，将其视为O(n)
+        :param method: 递归方法的名称
+        :param code: 产生递归的代码
+        :param rec_index: 递归代码所在的行号
+        :return:
         """
-        if len(complexity_tag) == 1:
-            return complexity_tag[0]
-        indentation_level = indentation_structure[begin + 1]
-        comp_record = [complexity_tag[begin + 1]]
-        record2comp = defaultdict(int)
-        """
-        针对缩进树的结构，有：
-        1. 不同深度的情况下，单一代码的复杂度一定大于它的上一层循环结构(可以忽略任意代码的上层项)
-        2. 不同深度的情况下，单一代码的复杂度可能小于与上一层循环同层的其他代码/调用(不能忽略上层同级项项)
-        3. 相同深度的情况下，单一代码的复杂度可能小于与自身同层的其他代码(不能忽略同层同级项)
-        """
-        record2comp[complexity_tag[begin + 1]] = indentation_structure[begin + 1]
-        for i in range(begin + 1, end):
-            temp_level = indentation_structure[i]
-            # 缩进层下落则增加复杂度，缩进层上浮则弹出复杂度
-            if temp_level > indentation_level:
-                comp_record.append(complexity_tag[i - 1] * comp_record[-1])
-                record2comp[comp_record[-1]] = temp_level
-            elif temp_level < indentation_level:
-                temp_record = comp_record.pop(-1)
-                max_level = max(record2comp.values())
-                # 当前深度与最大深度相同则添加复杂度串，更深则清空后添加复杂度串，较浅则不添加
-                record2comp = {k: v for k, v in record2comp.items() if v == max_level}
-                record2comp[temp_record] = temp_level
+        is_recursion = re.search(method, code)
+        if not is_recursion:
+            return
+
+        if code.count('='):
+            code = code.split('=')[1]
+        complexity = ''
+        has_rec = re.search(method, code)
+
+        def deal_comp() -> str:
+            """
+            在代码处理结束后对complexity中的记录进行处理和匹配;默认递归中不会出现减号和除号在统一调用中匹配成功的情况
+            可能出现的匹配模式如下所示：
+            1. [[0-9]*[*]?n^[0-9]*[ ]]*[n1]
+            2. [[0-9]*[*]?n/2[ ]]*[n1]
+            :return:
+            """
+            comp_list = complexity.split(' ')[:-1]
+            rec_count = 0
+            rec_exp = 1
+            for frac in comp_list:
+                if re.match("[0-9]*[*]?n/2", frac):
+                    a = frac.split('*')
+                    if len(a) > 1:
+                        rec_count += int(a[0])
+                    else:
+                        rec_count += 1
+                    rec_exp = -1
+                elif re.match("[0-9]*[*]?n\\^*[0-9]*", frac):
+                    a = frac.split('*')
+                    if len(a) > 1:
+                        rec_count += int(a[0])
+                    else:
+                        rec_count += 1
+                    rec_exp = max(rec_exp, int(frac.split('^')[1]))
+            rec_tail = comp_list[-1]
+            res = self.complexity_list[(rec_exp, rec_count, rec_tail)]
+            if res:
+                return res
             else:
-                record2comp[comp_record[-1]] = temp_level
-            indentation_level = temp_level
-        return max(record2comp)
+                if rec_exp > 1:
+                    return str(rec_exp) + "^n"
+                else:
+                    return "n"
+
+        while has_rec:
+            # 代码中仍存在自递归调用时
+            rec_start = has_rec.start()
+            rec_params = re.search("[^()]*", code[has_rec.end() + 1:])
+            rec_end = has_rec.end() + rec_params.end() + 1
+            rec_params = rec_params.group().split(',')
+            for rec_param in rec_params:
+                if not rec_param.lstrip('-').isdigit():
+                    # 作为非数字的参数，检查减号、除号以及乘号进行匹配
+                    comp_2add = ''
+                    rec_m = rec_param.count('-')
+                    if rec_m:
+                        comp_2add += ("n^" + str(rec_m) + ' ')
+                    else:
+                        rec_d = rec_param.count('/')
+                        if rec_d:
+                            comp_2add = "n/2 "
+                    rec_mul = re.search('[0-9]*[*]', code[rec_start: rec_end])
+                    if rec_mul:
+                        comp_2add = rec_mul.group() + comp_2add
+                    complexity += comp_2add
+            code = code[:rec_start] + code[rec_end + 1:]
+            has_rec = re.search(method, code)
+        # 代码中无自递归调用时
+        is_call = False
+        for name in self.methods:
+            is_call = is_call or (re.search(name, code) is not None)
+            if is_call:
+                break
+        if is_call:
+            complexity += 'n '
+        else:
+            complexity += '1 '
+        # 认定任何递归调用函数行数大于一行，将递归复杂度标记在递归调用的上一行
+        self.complexity_tag[rec_index - 1] = CompStr(deal_comp())
+        return
+
+    @staticmethod
+    def param_match(loop_type: str, code_line: str):
+        return re.match(loop_type, code_line)
 
 
 if __name__ == '__main__':
