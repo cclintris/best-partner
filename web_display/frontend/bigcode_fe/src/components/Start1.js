@@ -3,7 +3,7 @@ import 'antd/dist/antd.css'
 import { Input, Button, Divider, Descriptions } from 'antd'
 import { CheckOutlined } from '@ant-design/icons'
 
-export class Start extends Component {
+export class Start1 extends Component {
     constructor() {
         super()
         this.state = {
@@ -71,4 +71,4 @@ export class Start extends Component {
     }
 }
 
-export default Start;
+export default Start1;

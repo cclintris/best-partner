@@ -11,10 +11,10 @@
 }
 
 .header {
-  height: 20%;
+  height: 15%;
   background-color: white;
   font-size: 45px;
-  color: royalblue;
+  color: cornflowerblue;
   text-align: left;
   padding: 0 50px;
   display: table;
@@ -28,7 +28,7 @@
 
 .main {
   padding: 0 80px;
-  height: 70%;
+  height: 80%;
   background-color: white;
   border-style: groove;
   border-radius: 2px;
@@ -36,7 +36,7 @@
 
 .footer {
   padding: 0 10px;
-  height: 10%;
+  height: 5%;
   background-color: whitesmoke;
 }
 
@@ -57,4 +57,10 @@
 
 .description-text {
   text-align: center;
+}
+
+.echartsRadar {
+  display: flex;
+  justify-content: center;
+  height: 350px;
 }
