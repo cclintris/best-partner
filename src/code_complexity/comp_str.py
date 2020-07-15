@@ -70,69 +70,63 @@ class CompStr:
         2. n幂函数  n^[0-9]*
         3. n        n
         4. n对数    log[0-9]*_n
-        5. m        m
-        6. m对数    log[0-9]*_m
         :return:
         """
-        res = ''
-        a = self.value
-        b = other.value
-        # 预处理 将n变成n^1
-        for i in range(len(a)):
-            if a[i] == 'n':
-                if i != len(a) - 1:
-                    if a[i + 1] == '^':
-                        continue
-                if i != 0:
-                    if a[i - 1] == '^' or a[i - 1] == '_':
-                        continue
-                a_temp = list(a)
-                a_temp.insert(i + 1, '^1')
-                a = ''.join(a_temp)
-        for i in range(len(b)):
-            if b[i] == 'n':
-                if i != len(b) - 1:
-                    if b[i + 1] == '^':
-                        continue
-                if i != 0:
-                    if b[i - 1] == '^' or b[i - 1] == '_':
-                        continue
-                b_temp = list(b)
-                b_temp.insert(i + 1, '^1')
-                b = ''.join(b_temp)
-        # 比较指数
-        index_a = 0
-        for i in range(len(a)):
-            # 此处为依赖处
-            if a[i] == '^':
-                if a[i + 1] == 'n':
-                    index_a = int(a[i - 1])
-        index_b = 0
-        for i in range(len(b)):
-            # 此处为依赖处
-            if b[i] == '^':
-                if b[i + 1] == 'n':
-                    index_b = int(b[i - 1])
-        if index_a > index_b:
-            return -1
-        elif index_a < index_b:
+        # 按乘法连接分离不同特征项
+        a = self.value.split("*")
+        b = other.value.split("*")
+
+        # 定义字符串分析规则函数
+        def analyze(p: str) -> tuple:
+            has_A = False
+            has_B = False
+            A = ''
+            B = ''
+            for i in a:
+                if re.match(p, i):
+                    has_A = True
+                    A = i
+                    break
+            for i in b:
+                if re.match(p, i):
+                    has_B = True
+                    B = i
+                    break
+            return has_A, has_B, A, B
+
+        # 查找n指数
+        has_expA, has_expB, expA, expB = analyze("[0-9]*\\^n")
+        if has_expA and has_expB:
+            if int(expA[0]) > int(expB[0]):
+                return 1
+            else:
+                return 0
+        elif has_expA:
             return 1
-        # 比较幂函数
-        power_a = 0
-        for i in range(len(a)):
-            if a[i] == '^':
-                if a[i - 1] == 'n':
-                    power_a = int(a[i + 1])
-        power_b = 0
-        for i in range(len(b)):
-            if b[i] == '^':
-                if b[i - 1] == 'n':
-                    power_b = int(b[i + 1])
-        if power_a > power_b:
-            return -1
-        elif power_a < power_b:
+        elif has_expB:
+            return 0
+        # 查找n幂函数
+        has_powerA, has_powerB, powerA, powerB = analyze("n\\^[0-9]*")
+        if has_powerA and has_powerB:
+            if int(powerA[-1]) > int(powerB[-1]):
+                return 1
+            else:
+                return 0
+        elif has_powerA:
             return 1
-        if 'log_n' not in b:
-            return -1
-        if 'log_n' not in a:
+        elif has_powerB:
+            return 0
+        # 查找n字符
+        has_nA, has_nB, nA, nB = analyze("n")
+        if has_nA and not has_nB:
             return 1
+        elif has_nB and not has_nA:
+            return 0
+        # 查找n对数
+        has_logA, has_logB, logA, logB = analyze("log_n")
+        if has_logA and not has_logB:
+            return 1
+        elif has_logB and not has_logA:
+            return 0
+        # 所有匹配规则都失效
+        return 0

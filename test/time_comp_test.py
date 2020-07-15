@@ -119,7 +119,7 @@ def arr_dp_31():
 def serial_dp_23():
     # O(n^3)
     def dp(g: list, k: int, n: int, p: int) -> int:
-        # O(n)
+        # O(n^2)
         if n < len(g):
             if k == 0:
                 return 0

@@ -159,6 +159,7 @@ class Checker:
                 comp_record.append(complexity_tag[i] * last_record[-1])
             elif temp_level < indentation_level:
                 last_record.pop(-1)
+                comp_record.append(complexity_tag[i] * last_record[-1])
             else:
                 comp_record.append(complexity_tag[i])
             indentation_level = temp_level
