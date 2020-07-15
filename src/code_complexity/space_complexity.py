@@ -11,7 +11,7 @@ class SpaceChecker(Checker):
         1. 任意无循环添加列表的变量均被视为O(1)，包括递归
         2. 含有任意循环添加的空间复杂度被视为O(n^x)
         3. 忽略任何可能出现的条件筛选/二分法导致的添加并视为O(1)
-        4. 对出现的递归调用，将该方法的复杂度增加O(n)
+        4. 对出现的递归调用，将该方法的复杂度增加O(n):n次压栈
         :param method: 方法名
         :param method_begin: 方法起始位置
         :param method_end: 方法结束位置

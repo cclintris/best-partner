@@ -38,7 +38,7 @@ def loop(n):
 
 
 def fibonacci(n):
-    # 递归函数循环压栈的复杂度处理：O(1)
+    # 递归函数循环压栈的复杂度处理：O(n)
     if n < 1:
         return 0
     elif n == 1 or n == 2:

@@ -137,6 +137,9 @@ class Checker:
         1. 不同深度的情况下，单一代码的复杂度一定大于它的上一层循环结构(可以忽略任意代码的上层项)
         2. 不同深度的情况下，单一代码的复杂度可能小于与上一层循环同层的其他代码/调用(不能忽略上层同级项项)
         3. 相同深度的情况下，单一代码的复杂度可能小于与自身同层的其他代码(不能忽略同层同级项)
+        对此需要构建的数据结构有：
+        1. 上层复杂度列表last_record：每次缩进层下落时，存储上一层的复杂度;缩进层上浮时弹出上一层的复杂度
+        2. 比较复杂度列表comp_record: 存储每一行代码所产生的复杂度并进行最终比较
         :param begin: 起始计算位置
         :param end: 终止计算位置
         :param indentation_structure: 缩进树
@@ -146,23 +149,17 @@ class Checker:
         if len(complexity_tag) == 1:
             return complexity_tag[0]
         indentation_level = indentation_structure[begin + 1]
-        comp_record = [complexity_tag[begin + 1]]
-        record2comp = defaultdict(int)
-        record2comp[complexity_tag[begin + 1]] = indentation_structure[begin + 1]
+        last_record = [CompStr("1")]
+        comp_record = []
         for i in range(begin + 1, end):
             temp_level = indentation_structure[i]
             # 缩进层下落则增加复杂度，缩进层上浮则弹出复杂度
             if temp_level > indentation_level:
-                comp_record.append(complexity_tag[i - 1] * comp_record[-1])
-                record2comp[comp_record[-1]] = temp_level
+                last_record.append(complexity_tag[i - 1] * last_record[-1])
+                comp_record.append(complexity_tag[i] * last_record[-1])
             elif temp_level < indentation_level:
-                temp_record = comp_record.pop(-1)
-                # max_level = max(record2comp.values())
-                # 当前深度与最大深度相同则添加复杂度串，更深则清空后添加复杂度串，较浅则不添加
-                # record2comp = {k: v for k, v in record2comp.items() if v == max_level}
-                record2comp[temp_record] = temp_level
+                last_record.pop(-1)
             else:
                 comp_record.append(complexity_tag[i])
-                record2comp[comp_record[-1]] = temp_level
             indentation_level = temp_level
-        return max(record2comp)
+        return max(comp_record)
