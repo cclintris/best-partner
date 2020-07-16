@@ -50,7 +50,12 @@
   text-align: left;
 }
 
-#inputid {
+#student-id {
+  width: 300px;
+  text-align: left;
+}
+
+#ques-id {
   width: 300px;
   text-align: left;
 }

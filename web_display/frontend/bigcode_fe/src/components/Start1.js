@@ -12,8 +12,15 @@ export class Start1 extends Component {
             code_similarity : '',
             code_time_complexity : '',
             code_space_complexity : '',
-            overall_access : ''
+            overall_access : '',
         }
+    }
+
+    fetch_data() {
+        let student_id = document.getElementById("student-id")
+        let ques_id = document.getElementById("ques-id")
+        console.log(student_id.value)
+        console.log(ques_id.value)
     }
 
     get_report() {
@@ -36,13 +43,13 @@ export class Start1 extends Component {
     render() {
         return (
             <div className="startlayout">
-                <Input placeholder="请输入学生 id :" id="inputid"></Input>
+                <Input placeholder="请输入学生 id :" id="student-id"></Input>
                 <Divider type="vertical"/>
-                <Input placeholder="请输入题目 id :" id="inputid"></Input>
+                <Input placeholder="请输入题目 id :" id="ques-id"></Input>
                 <Divider type="vertical"/>
                 <Button type="primary" 
                         icon={<CheckOutlined />} 
-                        onClick={() => this.get_report()}>
+                        onClick={() => this.fetch_data()}>
                         确认
                 </Button>
                 <Divider />

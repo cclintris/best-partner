@@ -11,7 +11,7 @@ export class Start2 extends Component {
     render () {
         return (
             <div className="startlayout"> 
-                <Input placeholder="请输入学生 id :" id="inputid"></Input>
+                <Input placeholder="请输入学生 id :" id="student-id"></Input>
                 <Divider type="vertical"/>
                 <Button type="primary" 
                         icon={<CheckOutlined />} 
