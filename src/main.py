@@ -6,6 +6,7 @@ import pycode_similarity
 import space_complexity
 import time_complexity
 import check_is_py
+import shutil
 
 
 def download_zip():
@@ -23,6 +24,10 @@ def create_similarity_dict():
     # f.writelines(s)
     # f.close()
     res = {}
+    result = str(res)
+    similarity_file = open('../code_similarity.txt', 'w')
+    similarity_file.writelines(result)
+    similarity_file.close()
     code_path = "C:/Python/BigCode/code/res"
     # 储存文件名的list
     file_name_list = os.listdir(code_path)
@@ -70,10 +75,11 @@ def create_similarity_dict():
                         code_similarity = pycode_similarity.inspect("C:/Python/BigCode/code/res/"+origin_file[i]+"/main.py",
                                                                     "C:/Python/BigCode/code/res/"+file+"/main.py")
                         res[user][cases[i]][temp_comparison[0]] = code_similarity
-    result = str(res)
-    similarity_file = open('../code_similarity.txt', 'w')
-    similarity_file.writelines(result)
-    similarity_file.close()
+        os.remove('../code_similarity.txt')
+        result = str(res)
+        similarity_file = open('../code_similarity.txt', 'w')
+        similarity_file.writelines(result)
+        similarity_file.close()
 
 
 def create_complexity_dict():
@@ -82,7 +88,6 @@ def create_complexity_dict():
     code_path = "C:\\Python\\BigCode\\code\\res"
     # 储存文件名的list
     file_name_list = os.listdir(code_path)
-    print(file_name_list)
     # print(file_name_list)
     for file in file_name_list:
         print(file)
@@ -91,6 +96,7 @@ def create_complexity_dict():
         space_str = space_complexity.SpaceChecker("C:/Python/BigCode/code/res/" + file + "/main.py").deal_with_file()
         res[file].append(time_str)
         res[file].append(space_str)
+        print(res)
     print(res)
     result = str(res)
     complexity_file = open('../code_complexity.txt', 'w')
@@ -102,5 +108,5 @@ if __name__ == "__main__":
     # test = "../../test/space_comp_test.py"
     # print(space_complexity.SpaceChecker("../test/space_comp_test.py").deal_with_file())
     # print(time_complexity.TimeChecker("../test/time_comp_test.py").deal_with_file())
-    create_complexity_dict()
-
+    # create_complexity_dict()
+    create_similarity_dict()

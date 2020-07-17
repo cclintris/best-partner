@@ -12,7 +12,7 @@ from decimal import Decimal
 import gc
 import K_gram
 import hash
-import temp
+import syntax_tree
 
 # avoid using six to keep dependency clean
 if sys.version_info >= (3, 3):
@@ -406,7 +406,7 @@ class TreeDiff(object):
                 n.children = list(ast.iter_child_nodes(n))
             return n.children
 
-        res = temp.distance(a.func_node, b.func_node, _get_children,
+        res = syntax_tree.distance(a.func_node, b.func_node, _get_children,
                            lambda node: 0,  # insert cost
                            lambda node: _str_dist(_get_label(node), ''),  # remove cost
                            lambda _a, _b: _str_dist(_get_label(_a), _get_label(_b)), )  # update cost
@@ -555,9 +555,9 @@ def inspect(file1path, file2path):
 
     try:
         results = detect([c[1] for c in pycode_list])
-    except NoFuncException as ex:
-        print('error: can not find functions from {}.'.format(pycode_list[ex.source][0]))
-        return
+    except BaseException as e:
+        print("Exception")
+        return "E"
 
     code_similarity = 0
     if results == "1":
