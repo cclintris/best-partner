@@ -9,6 +9,7 @@ import itertools
 import zss
 from collections import Counter
 from decimal import Decimal
+import gc
 import K_gram
 import hash
 
@@ -557,6 +558,18 @@ def inspect(file1path, file2path):
                 sum_plagiarism_count,
                 sum_total_count))
         code_similarity = Decimal(sum_plagiarism_count / float(sum_total_count) * 100).quantize(Decimal("0.00"))
+    file1.close()
+    file2.close()
+    del tuple_file1
+    del tuple_file2
+    del list_file1
+    del list_file2
+    del list1
+    del list2
+    del pycode_list_file1
+    del pycode_list_file2
+    del pycode_list
+    gc.collect()
     return code_similarity
     # print('candidate function plagiarism details (AST lines >= {} and plagiarism percentage >= {}):'.format(
     #        args.l,
