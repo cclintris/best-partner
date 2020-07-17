@@ -1,5 +1,4 @@
 import re
-from comp_str import CompStr
 from collections import defaultdict
 
 
@@ -85,82 +84,149 @@ class Checker:
                     method_call_index[method].append(i)
         return method_call_index
 
-    def cal_method_complexity(self, method: str, method_begin: int, method_end: int) -> CompStr:
+    def cal_method_complexity(self, method, method_begin, method_end):
         pass
 
-    def cal_main_complexity(self, main_codes: list) -> CompStr:
+    def cal_main_complexity(self, main_codes):
+        pass
+
+    def integrate_complexity(self, begin: int, end: int, indentation_structure: list, complexity_tag: list):
+        pass
+
+
+class CompStr:
+    patterns = ['n\\^[0-9]*', 'log[0-9]*_n', 'log[0-9]*_m']
+    # 常见复杂度表单，顺序依次为n指数、n幂函数、n、n对数、m、m对数
+    to_compare = [
+        "[0-9]*\\^n", "n\\^[0-9]*", "n", "log[0-9]*_n", "m", "log[0-9]*_m"
+    ]
+
+    def __init__(self, comp: str):
+        self.value = comp
+
+    def __mul__(self, other):
         """
-        计算代码main函数空间复杂度的方法，该方法的计算思路如下：
-        1. 以input()函数为基准，将输入的数据作为列表项储存/作为列表长度声明的时候复杂度为O(n)
-        2. 输入数据不做储存仅做声明时，将复杂度视为O(1)
-        3. 最终的空间复杂度为所有的列表项、字典项储存的最大数据量
-        :param main_codes:
+        两个复杂度相乘;复杂度具有以下几种格式：
+        1. [n|m]
+        2. n^[0-9]*
+        3. log_[n|m]
+        4. [0-9]*^n
         :return:
         """
-        main_indentation = []
-        for i in range(len(main_codes)):
-            main_indentation.append((len(main_codes[i]) - len(main_codes[i].lstrip())) // 4)
-        main_comp_tag = [CompStr('1') for i in range(len(main_codes))]
-        methods_call_index = self.cal_method_call_index(main_codes)
-        for k, v in methods_call_index.items():
-            for q in v:
-                main_comp_tag[q] = self.methods_complexity[k]
-        for i in range(len(main_codes)):
-            line = main_codes[i].lstrip()
-            # 扫描行首是否有循环保留字
-            for word in self.reserved_words:
-                is_match = self.param_match(word, line)
-                if is_match:
-                    j = i + 1
-                    while j < len(main_indentation) and main_indentation[i] < main_indentation[j]:
-                        j += 1
-                    self.deal_loop(word, i, j, main_codes, main_comp_tag)
-        return self.integrate_complexity(-1, len(main_codes), main_indentation, main_comp_tag)
-
-    @staticmethod
-    def deal_loop(loop_type: str, loop_begin: int, loop_end: int, codes: list,
-                  complexity_tag: list):
-        pass
-
-    def deal_recursion(self, method: str, code: str, rec_index: int):
-        pass
-
-    @staticmethod
-    def param_match(loop_type: str, code_line: str):
-        pass
-
-    @staticmethod
-    def integrate_complexity(begin: int, end: int, indentation_structure: list, complexity_tag: list) -> CompStr:
-        """
-        整合complexity_tag上所记录的单行产生的复杂度，并返回整体复杂度
-        针对缩进树的结构，有：
-        1. 不同深度的情况下，单一代码的复杂度一定大于它的上一层循环结构(可以忽略任意代码的上层项)
-        2. 不同深度的情况下，单一代码的复杂度可能小于与上一层循环同层的其他代码/调用(不能忽略上层同级项项)
-        3. 相同深度的情况下，单一代码的复杂度可能小于与自身同层的其他代码(不能忽略同层同级项)
-        对此需要构建的数据结构有：
-        1. 上层复杂度列表last_record：每次缩进层下落时，存储上一层的复杂度;缩进层上浮时弹出上一层的复杂度
-        2. 比较复杂度列表comp_record: 存储每一行代码所产生的复杂度并进行最终比较
-        :param begin: 起始计算位置
-        :param end: 终止计算位置
-        :param indentation_structure: 缩进树
-        :param complexity_tag: complexity_tag 复杂度列表
-        :return: 复杂度
-        """
-        if len(complexity_tag) == 1:
-            return complexity_tag[0]
-        indentation_level = indentation_structure[begin + 1]
-        last_record = [CompStr("1")]
-        comp_record = []
-        for i in range(begin + 1, end):
-            temp_level = indentation_structure[i]
-            # 缩进层下落则增加复杂度，缩进层上浮则弹出复杂度
-            if temp_level > indentation_level:
-                last_record.append(complexity_tag[i - 1] * last_record[-1])
-                comp_record.append(complexity_tag[i] * last_record[-1])
-            elif temp_level < indentation_level:
-                last_record.pop(-1)
-                comp_record.append(complexity_tag[i] * last_record[-1])
+        # TODO
+        c1 = self.value
+        c2 = other.value
+        matches = [
+            re.match(self.patterns[0], c2), re.match('n', c2) and c2.count('^') == 0,
+            re.search(self.patterns[1], c2), re.search(self.patterns[2], c2)
+        ]
+        if c1 == '1':
+            return CompStr(c2)
+        if c2 == '1':
+            return CompStr(c1)
+        if c1 == 'n':
+            if matches[0]:
+                c = c2.split('^')
+                return CompStr(c[0] + '^' + str(int(c[1]) + 1))
+            elif matches[1]:
+                return CompStr("n^2" + c2[1:])
             else:
-                comp_record.append(complexity_tag[i])
-            indentation_level = temp_level
-        return max(comp_record)
+                return CompStr(c1 + '*' + c2)
+        if re.match(self.patterns[0], c1):
+            if matches[0]:
+                c = c2.split('^')
+                return CompStr(c[0] + str(int(c[1]) + int(c1.split('^')[1])))
+            elif matches[1]:
+                return CompStr("n^" + str(int(c1.split('^')[1]) + 1) + c2[1:])
+            else:
+                return CompStr(c1 + '*' + c2)
+        if re.match(self.patterns[1], c1):
+            if matches[2]:
+                a1 = int(re.search('log[0-9]*', c1).group()[3:])
+                a2 = int(re.search('log[0-9]*', c2).group()[3:])
+                return CompStr("log" + str(a1 + a2) + "_n")
+            else:
+                return CompStr(c2 + '*' + c1)
+        if re.match(self.patterns[2], c1):
+            if matches[3]:
+                a1 = int(re.search('log[0-9]*', c1).group()[3:])
+                a2 = int(re.search('log[0-9]*', c2).group()[3:])
+                return CompStr("log" + str(a1 + a2) + "_m")
+            else:
+                return CompStr(c2 + '*' + c1)
+        return CompStr(c1 + '*' + c2)
+
+    def __gt__(self, other):
+        """
+        查找字典中代表复杂度最高的字符串:比较两个复杂度的大小
+        依次比照以下大小
+        1. n指数    [0-9]*^n
+        2. n幂函数  n^[0-9]*
+        3. n        n
+        4. n对数    log[0-9]*_n
+        5. m        m
+        6. m对数    log[0-9]*_m
+        :return:
+        """
+        res = ''
+        a = self.value
+        b = other.value
+        # 预处理 将n变成n^1
+        for i in range(len(a)):
+            if a[i] == 'n':
+                if i != len(a) - 1:
+                    if a[i + 1] == '^':
+                        continue
+                if i != 0:
+                    if a[i - 1] == '^' or a[i - 1] == '_':
+                        continue
+                a_temp = list(a)
+                a_temp.insert(i + 1, '^1')
+                a = ''.join(a_temp)
+        for i in range(len(b)):
+            if b[i] == 'n':
+                if i != len(b) - 1:
+                    if b[i + 1] == '^':
+                        continue
+                if i != 0:
+                    if b[i - 1] == '^' or b[i - 1] == '_':
+                        continue
+                b_temp = list(b)
+                b_temp.insert(i + 1, '^1')
+                b = ''.join(b_temp)
+        # 比较指数
+        index_a = 0
+        for i in range(len(a)):
+            # 此处为依赖处
+            if a[i] == '^':
+                if a[i + 1] == 'n':
+                    index_a = int(a[i - 1])
+        index_b = 0
+        for i in range(len(b)):
+            # 此处为依赖处
+            if b[i] == '^':
+                if b[i + 1] == 'n':
+                    index_b = int(b[i - 1])
+        if index_a > index_b:
+            return -1
+        elif index_a < index_b:
+            return 1
+        # 比较幂函数
+        power_a = 0
+        for i in range(len(a)):
+            if a[i] == '^':
+                if a[i - 1] == 'n':
+                    power_a = int(a[i + 1])
+        power_b = 0
+        for i in range(len(b)):
+            if b[i] == '^':
+                if b[i - 1] == 'n':
+                    power_b = int(b[i + 1])
+        if power_a > power_b:
+            return -1
+        elif power_a < power_b:
+            return 1
+        if 'log_n' not in b:
+            return -1
+        if 'log_n' not in a:
+            return 1
