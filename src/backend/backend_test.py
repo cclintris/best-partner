@@ -1,6 +1,6 @@
 import sys
 sys.path.insert(0, '../../src/code_similarity')
-import pycode_Similarity
+import pycode_similarity
 
 from flask import Flask, jsonify
 app = Flask(__name__)
