@@ -106,14 +106,16 @@ class TimeChecker(Checker):
             rec_count = 0
             rec_exp = 1
             for frac in comp_list:
-                if re.match("[0-9]*[*]?n/2", frac):
+                if re.match("[0-9]*\\*?n/2", frac):
+                    # log_n幂函数
                     a = frac.split('*')
                     if len(a) > 1:
                         rec_count += int(a[0])
                     else:
                         rec_count += 1
                     rec_exp = -1
-                elif re.match("[0-9]*[*]?n\\^*[0-9]*", frac):
+                elif re.match("[0-9]*\\*?n\\^*[0-9]*", frac):
+                    # n幂函数
                     a = frac.split('*')
                     if len(a) > 1:
                         rec_count += int(a[0])
@@ -121,10 +123,10 @@ class TimeChecker(Checker):
                         rec_count += 1
                     rec_exp = max(rec_exp, int(frac.split('^')[1]))
             rec_tail = comp_list[-1]
-            res = self.complexity_list[(rec_exp, rec_count, rec_tail)]
-            if res:
+            try:
+                res = self.complexity_list[(rec_exp, rec_count, rec_tail)]
                 return res
-            else:
+            except KeyError:
                 if rec_exp > 1:
                     return str(rec_exp) + "^n"
                 else:
@@ -173,5 +175,6 @@ class TimeChecker(Checker):
 
 
 if __name__ == '__main__':
-    t = TimeChecker("../../test/time_comp_test.py")
+    # t = TimeChecker("../../test/time_comp_test.py")
+    t = TimeChecker("mini_test.py")
     print(t.deal_with_file())
