@@ -89,8 +89,8 @@ def create_complexity_dict():
         res[file] = []
         time_str = time_complexity.TimeChecker("C:/Python/BigCode/code/res/" + file + "/main.py").deal_with_file()
         space_str = space_complexity.SpaceChecker("C:/Python/BigCode/code/res/" + file + "/main.py").deal_with_file()
-        res[file].append(time_complexity)
-        res[file].append(space_complexity)
+        res[file].append(time_str)
+        res[file].append(space_str)
     print(res)
     result = str(res)
     complexity_file = open('../code_complexity.txt', 'w')
@@ -102,5 +102,5 @@ if __name__ == "__main__":
     # test = "../../test/space_comp_test.py"
     # print(space_complexity.SpaceChecker("../test/space_comp_test.py").deal_with_file())
     # print(time_complexity.TimeChecker("../test/time_comp_test.py").deal_with_file())
-    create_similarity_dict()
+    create_complexity_dict()
 
