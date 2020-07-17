@@ -25,7 +25,8 @@ class Checker:
         # 常见递归表单，由指数、系数和尾数构成元组项，对应复杂度
         self.complexity_list = {
             (-1, 1, '1'): "log_n", (-1, 2, '1'): "n", (-1, 2, 'n'): "n*log_n", (1, 1, '1'): "n",
-            (1, 1, 'n'): "n^2", (1, 2, '1'): "2^n", (2, 1, '1'): "n^2", (2, 2, '1'): "n^2*log_n"
+            (1, 1, 'n'): "n^2", (1, 2, '1'): "2^n", (2, 1, '1'): "n^2", (2, 2, '1'): "n^2*log_n",
+            (1, 0, '1'): "n"
         }
 
     def __len__(self):
@@ -53,8 +54,11 @@ class Checker:
         main_tag = [1 for i in range(codes_len)]
         for method in methods:
             method_begin = methods[method]
-            method_end = self.indentation_structure.index(self.indentation_structure[method_begin], method_begin + 1,
-                                                          codes_len + 1)
+            method_end = method_begin + 1
+            for i in range(method_begin + 1, codes_len + 1):
+                if self.indentation_structure[method_begin] >= self.indentation_structure[i]:
+                    method_end = i
+                    break
             method_complexity[method] = self.cal_method_complexity(method, method_begin, method_end)
             for i in range(method_begin, method_end):
                 main_tag[i] = 0
@@ -159,7 +163,10 @@ class Checker:
                 comp_record.append(complexity_tag[i] * last_record[-1])
             elif temp_level < indentation_level:
                 last_record.pop(-1)
-                comp_record.append(complexity_tag[i] * last_record[-1])
+                if len(last_record) > 0:
+                    comp_record.append(complexity_tag[i] * last_record[-1])
+                else:
+                    return CompStr("1")
             else:
                 comp_record.append(complexity_tag[i])
             indentation_level = temp_level

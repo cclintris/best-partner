@@ -82,5 +82,6 @@ class SpaceChecker(Checker):
 
 
 if __name__ == '__main__':
-    t = SpaceChecker("../../test/space_comp_test.py")
+    # t = SpaceChecker("../../test/space_comp_test.py")
+    t = SpaceChecker("mini_test.py")
     print(t.deal_with_file())
