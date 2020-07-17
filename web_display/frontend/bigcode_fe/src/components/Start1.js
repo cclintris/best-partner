@@ -49,7 +49,7 @@ export class Start1 extends Component {
                 <Divider type="vertical"/>
                 <Button type="primary" 
                         icon={<CheckOutlined />} 
-                        onClick={() => this.fetch_data()}>
+                        onClick={() => this.get_report()}>
                         确认
                 </Button>
                 <Divider />
