@@ -12,6 +12,7 @@ from decimal import Decimal
 import gc
 import K_gram
 import hash
+import temp
 
 # avoid using six to keep dependency clean
 if sys.version_info >= (3, 3):
@@ -405,10 +406,14 @@ class TreeDiff(object):
                 n.children = list(ast.iter_child_nodes(n))
             return n.children
 
-        res = zss.distance(a.func_node, b.func_node, _get_children,
+        res = temp.distance(a.func_node, b.func_node, _get_children,
                            lambda node: 0,  # insert cost
                            lambda node: _str_dist(_get_label(node), ''),  # remove cost
                            lambda _a, _b: _str_dist(_get_label(_a), _get_label(_b)), )  # update cost
+        if res == "1":
+            return "1"
+        elif res == "2":
+            return "2"
         return res
 
     @staticmethod
@@ -449,6 +454,10 @@ def detect(pycode_string_list, diff_method=TreeDiff):
             min_diff_func_info = None
             for fi2 in func_info_candidate:
                 dv = diff_method.diff(fi1, fi2)
+                if dv == "1":
+                    return "1"
+                elif dv == "2":
+                    return "2"
                 if dv < min_diff_value:
                     min_diff_value = dv
                     min_diff_func_info = fi2
@@ -509,6 +518,9 @@ def inspect(file1path, file2path):
     file1 = open(file1path, 'rb')
     file2 = open(file2path, 'rb')
 
+    print("ref: "+file1path)
+    print("candidate: "+file2path)
+
     argsfiles = [file1path, file2path]
     # parser = ArgParser(description='A simple plagiarism detection tool for python code')
     # parser.add_argument('files', type=get_file, nargs=2,
@@ -548,16 +560,21 @@ def inspect(file1path, file2path):
         return
 
     code_similarity = 0
-    for index, func_ast_diff_list in results:
-        print('ref: {}'.format(pycode_list[0][0]))
-        print('candidate: {}'.format(pycode_list[index][0]))
-        sum_total_count = sum(func_diff_info.total_count for func_diff_info in func_ast_diff_list)
-        sum_plagiarism_count = sum(func_diff_info.plagiarism_count for func_diff_info in func_ast_diff_list)
-        print('{:.2f} % ({}/{}) of ref code structure is plagiarized by candidate.'.format(
-                sum_plagiarism_count / float(sum_total_count) * 100,
-                sum_plagiarism_count,
-                sum_total_count))
-        code_similarity = Decimal(sum_plagiarism_count / float(sum_total_count) * 100).quantize(Decimal("0.00"))
+    if results == "1":
+        print("0.00 % (0.0/1000) of ref code structure is plagiarized by candidate.")
+        code_similarity = 0.00
+    elif results == "2":
+        print("100.00 % (1000.0/1000) of ref code structure is plagiarized by candidate.")
+        code_similarity = 100.00
+    else:
+        for index, func_ast_diff_list in results:
+            sum_total_count = sum(func_diff_info.total_count for func_diff_info in func_ast_diff_list)
+            sum_plagiarism_count = sum(func_diff_info.plagiarism_count for func_diff_info in func_ast_diff_list)
+            print('{:.2f} % ({}/{}) of ref code structure is plagiarized by candidate.'.format(
+                    sum_plagiarism_count / float(sum_total_count) * 100,
+                    sum_plagiarism_count,
+                    sum_total_count))
+            code_similarity = Decimal(sum_plagiarism_count / float(sum_total_count) * 100).quantize(Decimal("0.00"))
     file1.close()
     file2.close()
     del tuple_file1
