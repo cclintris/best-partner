@@ -13,7 +13,7 @@ def download_zip():
     print(end - start)
 
 
-def creat_similarity_dict():
+def create_similarity_dict():
     # d = {'a': 'aaa', 'b': 'bbb'}
     # s = str(d)
     # f = open('../code_similarity.txt', 'w')
@@ -54,8 +54,8 @@ def creat_similarity_dict():
                     if temp_comparison[0] in res:
                         res[user][cases[i]][temp_comparison[0]] = res[temp_comparison[0]][cases[i]][user]
                     else:
-                        code_similarity = pycode_similarity.inspect("../code/res/"+origin_file[i]+"/main.py",
-                                                                    "../code/res/"+file+"/main.py")
+                        code_similarity = pycode_similarity.inspect('../code/res/'+origin_file[i]+'/main.py',
+                                                                    '../code/res/'+file+'/main.py')
                         res[user][cases[i]][temp_comparison[0]] = code_similarity
     result = str(res)
     similarity_file = open('../code_similarity.txt', 'w')
@@ -63,12 +63,12 @@ def creat_similarity_dict():
     similarity_file.close()
 
 
-def creat_complexity_dict():
+def create_complexity_dict():
     # 数据格式{file_name0: [time, space], file_name1: [time, space].... ,}
     res = {}
 
 
 if __name__ == "__main__":
-    creat_similarity_dict()
+    create_similarity_dict()
 
 
