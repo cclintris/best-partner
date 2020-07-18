@@ -33,7 +33,7 @@ class CompStr:
         if c1 == 'n':
             if matches[0]:
                 c = c2.split('^')
-                return CompStr(c[0] + '^' + str(int(c[1]) + 1))
+                return CompStr(c[0] + '^' + str(int(c[1][0]) + 1) + c[1][1:])
             elif matches[1]:
                 return CompStr("n^2" + c2[1:])
             else:
@@ -41,15 +41,17 @@ class CompStr:
         if re.match(self.patterns[0], c1):
             if matches[0]:
                 c = c2.split('^')
-                return CompStr(c[0] + str(int(c[1]) + int(c1.split('^')[1])))
+                return CompStr(c[0] + str(int(c[1][0]) + int(c1.split('^')[1][0])) + c[1][1:])
             elif matches[1]:
-                return CompStr("n^" + str(int(c1.split('^')[1]) + 1) + c2[1:])
+                return CompStr("n^" + str(int(c1.split('^')[1][0]) + 1) + c2[1:])
             else:
                 return CompStr(c1 + '*' + c2)
         if re.match(self.patterns[1], c1):
             if matches[2]:
-                a1 = int(re.search('log[0-9]*', c1).group()[3:])
-                a2 = int(re.search('log[0-9]*', c2).group()[3:])
+                a1 = re.search('log[0-9]*', c1).group()[3:]
+                a2 = re.search('log[0-9]*', c2).group()[3:]
+                a1 = (1 if a1 == '' else int(a1))
+                a2 = (1 if a2 == '' else int(a2))
                 return CompStr("log" + str(a1 + a2) + "_n")
             else:
                 return CompStr(c2 + '*' + c1)

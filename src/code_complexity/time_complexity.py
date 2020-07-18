@@ -121,7 +121,8 @@ class TimeChecker(Checker):
                         rec_count += int(a[0])
                     else:
                         rec_count += 1
-                    rec_exp = max(rec_exp, int(frac.split('^')[1]))
+                    temp_exp = frac.split('^')
+                    rec_exp = max(rec_exp, int(temp_exp[1]) if len(temp_exp) > 1 else 1)
             rec_tail = comp_list[-1]
             try:
                 res = self.complexity_list[(rec_exp, rec_count, rec_tail)]
@@ -149,7 +150,7 @@ class TimeChecker(Checker):
                         rec_d = rec_param.count('/')
                         if rec_d:
                             comp_2add = "n/2 "
-                    rec_mul = re.search('[0-9]*[*]', code[rec_start: rec_end])
+                    rec_mul = re.search('[0-9]+\\*]', code[rec_start: rec_end])
                     if rec_mul:
                         comp_2add = rec_mul.group() + comp_2add
                     complexity += comp_2add
@@ -175,6 +176,7 @@ class TimeChecker(Checker):
 
 
 if __name__ == '__main__':
-    # t = TimeChecker("../../test/time_comp_test.py")
-    t = TimeChecker("mini_test.py")
+    # t = TimeChecker("../../test/time_comp_test.py"mini_test.py)
+    # t = TimeChecker("mini_test.py")
+    t = TimeChecker("../../code/res/" + "60621_2175_281315" + "/main.py")
     print(t.deal_with_file())
