@@ -32,7 +32,7 @@ class Checker:
     def __len__(self):
         return len(self.codes)
 
-    def deal_with_file(self):
+    def deal_with_file(self) -> str:
         """
         处理python文件的方法，该方法有以下限制：
         1. 方法只能处理.py文件;
@@ -70,7 +70,7 @@ class Checker:
             if tag == 1:
                 main_codes.append(self.codes[i])
         main_complexity = self.cal_main_complexity(main_codes)
-        return main_complexity.value
+        return str(main_complexity.value)
 
     def cal_method_call_index(self, main_codes: list) -> dict:
         """
@@ -83,8 +83,8 @@ class Checker:
         for i in range(len(main_codes)):
             code_line = main_codes[i]
             for method in self.methods_complexity:
-                call_pattern = method + "[(][^()]*[)]"
-                method_call = re.search(call_pattern, code_line)
+                method_call = re.search("[+\\-*/=\\s]+" + method + "\\([^()]*\\)", code_line) is not None or re.match(
+                    method + "\\([^()]*\\)", code_line) is not None
                 if method_call:
                     method_call_index[method].append(i)
         return method_call_index

@@ -167,7 +167,7 @@ class TimeChecker(Checker):
         else:
             complexity += '1 '
         # 认定任何递归调用函数行数大于一行，将递归复杂度标记在递归调用的上一行
-        self.complexity_tag[rec_index - 1] = CompStr(deal_comp())
+        self.complexity_tag[rec_index] = CompStr(deal_comp())
         return
 
     @staticmethod
@@ -176,7 +176,7 @@ class TimeChecker(Checker):
 
 
 if __name__ == '__main__':
-    # t = TimeChecker("../../test/time_comp_test.py"mini_test.py)
+    # t = TimeChecker("../../test/time_comp_test.py")
     # t = TimeChecker("mini_test.py")
-    t = TimeChecker("../../code/res/" + "60621_2175_281315" + "/main.py")
+    t = TimeChecker("../../code/res/" + "39160_2709_276682" + "/main.py")
     print(t.deal_with_file())

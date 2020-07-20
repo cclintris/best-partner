@@ -41,7 +41,7 @@ class CompStr:
         if re.match(self.patterns[0], c1):
             if matches[0]:
                 c = c2.split('^')
-                return CompStr(c[0] + str(int(c[1][0]) + int(c1.split('^')[1][0])) + c[1][1:])
+                return CompStr(c[0] + '^' + str(int(c[1][0]) + int(c1.split('^')[1][0])) + c[1][1:])
             elif matches[1]:
                 return CompStr("n^" + str(int(c1.split('^')[1][0]) + 1) + c2[1:])
             else:
