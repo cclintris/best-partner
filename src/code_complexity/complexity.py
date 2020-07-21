@@ -13,6 +13,8 @@ class Checker:
         for i in range(len(self.codes) - 1, -1, -1):
             if re.match('#', self.codes[i].lstrip()) or not len(self.codes[i].strip()):
                 self.codes.pop(i)
+            else:
+                self.codes[i] = self.codes[i].replace('\t', '    ')
         # 构建缩进树
         self.indentation_structure = []
         for i in range(len(self)):
@@ -155,18 +157,19 @@ class Checker:
         if len(complexity_tag) == 1:
             return complexity_tag[0]
         indentation_level = indentation_structure[begin + 1]
-        last_record = [CompStr("1")]
+        last_record = [[CompStr("1"), -1]]
         comp_record = []
         for i in range(begin + 1, end):
             temp_level = indentation_structure[i]
             # 缩进层下落则增加复杂度，缩进层上浮则弹出复杂度
             if temp_level > indentation_level:
-                last_record.append(complexity_tag[i - 1] * last_record[-1])
-                comp_record.append(complexity_tag[i] * last_record[-1])
+                last_record.append([complexity_tag[i - 1] * last_record[-1][0], indentation_level])
+                comp_record.append(complexity_tag[i] * last_record[-1][0])
             elif temp_level < indentation_level:
-                last_record.pop(-1)
+                while temp_level < indentation_level:
+                    indentation_level = last_record.pop(-1)[1]
                 if len(last_record) > 0:
-                    comp_record.append(complexity_tag[i] * last_record[-1])
+                    comp_record.append(complexity_tag[i] * last_record[-1][0])
                 else:
                     return CompStr("1")
             else:
