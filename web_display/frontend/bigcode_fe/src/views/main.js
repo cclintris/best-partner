@@ -20,10 +20,10 @@ export class main extends Component {
                         <TabPane tab="工具介绍" key="1">
                             <Guide />
                         </TabPane>
-                        <TabPane tab="开始使用 1" key="2">
+                        <TabPane tab="单题代码质量" key="2">
                             <Start1 />
                         </TabPane>
-                        <TabPane tab="开始使用 2" key="3">
+                        <TabPane tab="综合代码质量" key="3">
                             <Start2 />
                         </TabPane>
                     </Tabs>

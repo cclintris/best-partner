@@ -14,8 +14,7 @@ export class Echart extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            overall_student_value: [220, 410, 398, 400],
-            specific_student_value: [120, 290, 287, 320],
+
         }
     }
 
@@ -90,7 +89,7 @@ export class Echart extends Component {
                 areaStyle: {normal: {}},
                 data: [
                     {
-                        value: this.state.overall_student_value,
+                        value: this.props.overall_student_value,
                         itemStyle: {
                             normal: {
                                 color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
@@ -111,7 +110,7 @@ export class Echart extends Component {
                         id: 'overall_student'
                     },
                     {
-                        value: this.state.specific_student_value,
+                        value: this.props.specific_student_value,
                         itemStyle: {
                             normal: {
                                 color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{

@@ -1,11 +1,39 @@
 import React, { Component } from 'react'
-import { Input, Button, Divider } from 'antd'
+import { Input, Button, Divider, message } from 'antd'
 import { CheckOutlined } from '@ant-design/icons'
 import { Echart } from '../components/Echart'
+import axios from 'axios'
 
 export class Start2 extends Component {
-    get_overall_report = () => {
-        console.log("overall report")
+    constructor() {
+        super()
+        this.state = {
+            overall_student_value : [],
+            specific_student_value : [],
+        }
+    }
+
+    get_overall_report(){
+        let student_id = document.getElementById("student-id")
+        let student_id_val = String(student_id.value)
+        axios.get(`http://localhost:5000/Echartreport/student_id=${student_id_val}`)
+        .then(response => {
+            let data = response.data
+            console.log(data)
+            if(data.message === "Invalid Input") {
+                message.warning("学生id不可为空!")
+            }else if(data.message === "Valid Input") {
+                this.setState({
+                    overall_student_value : data.overall_student_value,
+                    specific_student_value : data.specific_student_value,
+                })
+                // console.log(this.state.overall_student_value)
+                // console.log(this.state.specific_student_value)
+            }
+        })
+        .catch(error => {
+            console.log(error)
+        })
     }
 
     render () {
@@ -18,7 +46,10 @@ export class Start2 extends Component {
                         onClick={() => this.get_overall_report()}>
                         确认
                 </Button>
-                <Echart />
+                <Echart 
+                    overall_student_value = { this.state.overall_student_value } 
+                    specific_student_value = { this.state.specific_student_value }
+                />
             </div>
         )
     }
