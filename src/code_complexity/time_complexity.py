@@ -178,5 +178,5 @@ class TimeChecker(Checker):
 if __name__ == '__main__':
     # t = TimeChecker("../../test/time_comp_test.py")
     # t = TimeChecker("mini_test.py")
-    t = TimeChecker("../../code/res/" + "39160_2709_276682" + "/main.py")
+    t = TimeChecker("../../code/res/" + "39160_2711_265881" + "/main.py")
     print(t.deal_with_file())
