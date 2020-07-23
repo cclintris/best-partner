@@ -85,8 +85,9 @@ class Checker:
         for i in range(len(main_codes)):
             code_line = main_codes[i]
             for method in self.methods_complexity:
-                method_call = re.search("[+\\-*/=\\s]+" + method + "\\([^()]*\\)", code_line) is not None or re.match(
-                    method + "\\([^()]*\\)", code_line) is not None
+                method_call = re.search("\\W+" + method + "\\([^()]*\\)",
+                                        code_line) is not None or re.match("\\s*" + method + "\\([^()]*\\)",
+                                                                           code_line) is not None
                 if method_call:
                     method_call_index[method].append(i)
         return method_call_index

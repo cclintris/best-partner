@@ -4,6 +4,7 @@ from comp_str import CompStr
 
 
 class SpaceChecker(Checker):
+    compPattern = re.compile("[^\\\\.]*[\\\\.]append|[^+\\-*/=\\[\\]]+=\\s?\\[|[^\\\\.]*[\\\\.]add")
 
     def cal_method_complexity(self, method, method_begin, method_end):
         """
@@ -54,6 +55,15 @@ class SpaceChecker(Checker):
         :param complexity_tag: 代码的复杂度标签
         :return:
         """
+        if loop_begin + 1 == loop_end:
+            exp = codes[loop_begin].count(" for ")
+            if exp == 0:
+                complexity_tag[loop_begin] = CompStr("1")
+            elif exp == 1:
+                complexity_tag[loop_begin] = CompStr("n")
+            else:
+                complexity_tag[loop_begin] = CompStr("n^" + str(exp))
+            return 1
         loop_loc = loop_begin
         while loop_loc < loop_end:
             if self.param_comp(codes[loop_loc]):
@@ -63,8 +73,7 @@ class SpaceChecker(Checker):
         complexity_tag[loop_begin] = CompStr("1")
         return 0
 
-    @staticmethod
-    def param_comp(code_line: str):
+    def param_comp(self, code_line: str):
         """
         检查一行声明中是否匹配列表或字典的添加模式
         列表/字典的匹配模式有以下两种：
@@ -73,8 +82,7 @@ class SpaceChecker(Checker):
         :param code_line: 一行代码
         :return:
         """
-        return re.match("[^\\\\.]*[\\\\.]append", code_line) is not None or re.match("[^\\[]*\\[[^=]*=",
-                                                                                     code_line) is not None
+        return self.compPattern.match(code_line)
 
     @staticmethod
     def param_match(loop_type: str, code_line: str) -> bool:
@@ -83,5 +91,6 @@ class SpaceChecker(Checker):
 
 if __name__ == '__main__':
     # t = SpaceChecker("../../test/space_comp_test.py")
-    t = SpaceChecker("mini_test.py")
+    # t = SpaceChecker("mini_test.py")
+    t = SpaceChecker("../../code/res/" + "49823_2737_242964" + "/main.py")
     print(t.deal_with_file())
