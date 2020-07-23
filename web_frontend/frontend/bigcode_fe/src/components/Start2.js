@@ -14,7 +14,7 @@ export class Start2 extends Component {
     }
 
     get_overall_report(){
-        let student_id = document.getElementById("student-id")
+        let student_id = document.getElementById("student-id1")
         let student_id_val = String(student_id.value)
         axios.get(`http://localhost:5000/Echartreport/student_id=${student_id_val}`)
         .then(response => {
@@ -39,7 +39,7 @@ export class Start2 extends Component {
     render () {
         return (
             <div className="startlayout"> 
-                <Input placeholder="请输入学生 id :" id="student-id"></Input>
+                <Input placeholder="请输入学生 id :" id="student-id1"></Input>
                 <Divider type="vertical"/>
                 <Button type="primary" 
                         icon={<CheckOutlined />} 

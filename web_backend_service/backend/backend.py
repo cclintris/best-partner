@@ -33,16 +33,35 @@ def report(student_id, ques_id):
 @app.route("/Echartreport/<student_id>")
 def Echartreport(student_id):
     # print(student_id)
+    overall_student_value = []
+    specific_student_value = []
+
     if student_id == "student_id=":
         error = {
             'message' : 'Invalid Input'
         }
         return jsonify(error)
     else:
+        '''
+        顺序如下：
+        1. 代码估计相似度
+        2. 代码时间复杂度
+        3. 代码风格水平
+        4. 代码空间复杂度
+        '''
+        overall_student_value.append(220)
+        overall_student_value.append(410)
+        overall_student_value.append(398)
+        overall_student_value.append(400)
+
+        specific_student_value.append(120)
+        specific_student_value.append(290)
+        specific_student_value.append(287)
+        specific_student_value.append(320)
         Echartreport = {
             'message' : 'Valid Input',
-            'overall_student_value' : [220, 410, 398, 400],
-            'specific_student_value' : [120, 290, 287, 320],
+            'overall_student_value' : overall_student_value,
+            'specific_student_value' : specific_student_value,
         }
         return jsonify(Echartreport)
 
