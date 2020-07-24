@@ -56,7 +56,7 @@ class SpaceChecker(Checker):
         :return:
         """
         if loop_begin + 1 == loop_end:
-            exp = codes[loop_begin].count(" for ")
+            exp = codes[loop_begin].count(" range")
             if exp == 0:
                 complexity_tag[loop_begin] = CompStr("1")
             elif exp == 1:
@@ -92,5 +92,5 @@ class SpaceChecker(Checker):
 if __name__ == '__main__':
     # t = SpaceChecker("../../test/space_comp_test.py")
     # t = SpaceChecker("mini_test.py")
-    t = SpaceChecker("../../code/res/" + "49823_2737_242964" + "/main.py")
+    t = SpaceChecker("../../code/res/" + "59308_2195_286182" + "/main.py")
     print(t.deal_with_file())

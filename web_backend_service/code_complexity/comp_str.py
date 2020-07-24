@@ -101,7 +101,7 @@ class CompStr:
         if has_expA and has_expB:
             if int(expA[0]) > int(expB[0]):
                 return 1
-            else:
+            elif int(expA[0]) < int(expB[0]):
                 return 0
         elif has_expA:
             return 1
@@ -112,7 +112,7 @@ class CompStr:
         if has_powerA and has_powerB:
             if int(powerA[-1]) > int(powerB[-1]):
                 return 1
-            else:
+            elif int(powerA[-1]) < int(powerB[-1]):
                 return 0
         elif has_powerA:
             return 1
