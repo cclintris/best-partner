@@ -57,7 +57,7 @@ def Echartreport(student_id):
         specific_student_value.append(120)
         specific_student_value.append(290)
         specific_student_value.append(287)
-        specific_student_value.append(320)
+        specific_student_value.append(300)
         Echartreport = {
             'message' : 'Valid Input',
             'overall_student_value' : overall_student_value,
