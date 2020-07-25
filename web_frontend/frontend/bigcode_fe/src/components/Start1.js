@@ -12,6 +12,7 @@ export class Start1 extends Component {
             code_similarity : '',
             code_time_complexity : '',
             code_space_complexity : '',
+            code_score : '',
             is_indent_using_one : '',
             is_space_nums_multiple_of_four : '',
             is_within_len_range : '',
@@ -135,11 +136,11 @@ export class Start1 extends Component {
                     <Descriptions.Item label="代码相似度">
                         { this.state.code_similarity } %
                     </Descriptions.Item>
-                    <Descriptions.Item label="代码时间复杂度">
-                        { this.state.code_time_complexity }
+                    <Descriptions.Item label="代码分数">
+                        { this.state.code_score }
                     </Descriptions.Item>
-                    <Descriptions.Item label="代码空间复杂度">
-                        { this.state.code_space_complexity }
+                    <Descriptions.Item label="代码时空复杂度">
+                        { this.state.code_time_complexity } / { this.state.code_space_complexity }
                     </Descriptions.Item>
                     <Descriptions.Item label="代码风格">
                         <Button type="dashed" primary onClick={() => this.showModal()}>查看详情</Button>
