@@ -71,7 +71,7 @@ export class Echart extends Component {
                     }
                 },
                 indicator: [
-                    {"name":"代码估计相似度","value":'',"max":100},
+                    {"name":"代码估计相似度","value":'',"max":15},
                     {"name":"代码时间复杂度","value":'',"max":100},
                     {"name":"代码风格水平","value":'',"max":100},
                     {"name":"代码空间复杂度","value":'',"max":100},

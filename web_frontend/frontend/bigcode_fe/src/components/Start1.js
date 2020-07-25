@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Input, Button, Divider, Descriptions, message, Modal } from 'antd'
+import { Input, Button, Divider, Descriptions, message, Modal, Spin } from 'antd'
 import { CheckOutlined } from '@ant-design/icons'
 import axios from 'axios'
 
@@ -30,31 +30,39 @@ export class Start1 extends Component {
             is_not_blank_between_import : '',
             is_using_meaningful_name : '',
             code_style_score : '',
-            visible : false, // Modal show visible
+            modal_visible : false, // Modal show visible
+            loading_visible : false, // Loading show visible
         }
     }
 
     showModal = () => {
         this.setState({
-            visible : true
+            modal_visible : true
         })
     }
 
     handleOk = e => {
-        console.log(e);
+        // console.log(e);
         this.setState({
-            visible: false,
+            modal_visible: false,
         });
       };
     
     handleCancel = e => {
-        console.log(e);
+        // console.log(e);
         this.setState({
-            visible: false,
+            modal_visible: false,
         });
     };
 
+    handleLoading = () => {
+        this.setState({
+            loading_visible : !this.state.loading_visible
+        })
+    }
+
     get_report() {
+        this.handleLoading()
         let student_id = document.getElementById("student-id")
         let ques_id = document.getElementById("ques-id")
         let student_id_val = String(student_id.value)
@@ -93,6 +101,7 @@ export class Start1 extends Component {
                     code_style_score : data.code_style_score,
                 })
             }
+            this.handleLoading()
         })
         .catch(error => {
             console.log(error)
@@ -108,9 +117,13 @@ export class Start1 extends Component {
                 <Divider type="vertical"/>
                 <Button type="primary" 
                         icon={<CheckOutlined />} 
-                        onClick={() => this.get_report()}>
+                        onClick={() => this.get_report()}
+                        className="confirm">
                         确认
                 </Button>
+                {
+                    this.state.loading_visible === true ?<Spin size="large" tip="加载中..."/>:null
+                }
                 <Divider />
                 <Descriptions title="学生编程评价报告" bordered className="description-text">
                     <Descriptions.Item label="题目分组">
@@ -132,7 +145,7 @@ export class Start1 extends Component {
                         <Button type="dashed" primary onClick={() => this.showModal()}>查看详情</Button>
                         <Modal
                             title="代码风格详情"
-                            visible={ this.state.visible }
+                            visible={ this.state.modal_visible }
                             onOk = { this.handleOk }
                             onCancel = { this.handleCancel }
                         >
