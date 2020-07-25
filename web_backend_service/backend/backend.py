@@ -27,6 +27,7 @@ def report(student_id, ques_id):
         data = eval(file.read())
         file.close()
         ques_type = ''
+        code_score = 0
         otherStyleTime = ''
         flag = False
         if student_id not in data:
@@ -40,6 +41,7 @@ def report(student_id, ques_id):
                 ques_type = data[student_id]["cases"][case]["case_type"]
                 if len(data[student_id]["cases"][case]["upload_records"]) != 0:
                     upload_time = data[student_id]["cases"][case]["upload_records"][len(data[student_id]["cases"][case]["upload_records"])-1]["upload_time"]
+                    code_score = data[student_id]["cases"][case]["final_score"]
                     timeStamp = float(upload_time / 1000)
                     timeArray = time.localtime(timeStamp)
                     otherStyleTime = str(time.strftime("%Y-%m-%d %H:%M:%S", timeArray))
@@ -51,6 +53,7 @@ def report(student_id, ques_id):
                         'code_similarity': 0,
                         'code_time_complexity': 'Null',
                         'code_space_complexity': 'Null',
+                        'code_score': 'Null',
                         'is_indent_using_one': 'Null',
                         'is_space_nums_multiple_of_four': 'Null',
                         'is_within_len_range': 'Null',
@@ -213,6 +216,7 @@ def report(student_id, ques_id):
             'code_similarity': code_similarity,
             'code_time_complexity': code_time_complexity,
             'code_space_complexity': code_space_complexity,
+            'code_score': code_score,
             'is_indent_using_one': is_indent_using_one,
             'is_space_nums_multiple_of_four': is_space_nums_multiple_of_four,
             'is_within_len_range': is_within_len_range,
@@ -249,22 +253,25 @@ def Echartreport(student_id):
         '''
         顺序如下：
         1. 代码估计相似度
-        2. 代码时间复杂度
-        3. 代码风格水平
+        2. 代码风格水平
+        3. 代码时间复杂度
         4. 代码空间复杂度
+        5. 代码分数
         '''
         student_id = student_id.split("=")[1]
         file = open("../code_total.txt", 'r', encoding='utf-8')
         data = eval(file.read())
         file.close()
         overall_student_value.append(data[0]["total"])
-        overall_student_value.append(41)
         overall_student_value.append(data[1]["total"])
+        overall_student_value.append(41)
+        overall_student_value.append(39)
         overall_student_value.append(39)
 
         specific_student_value.append(data[0][student_id])
-        specific_student_value.append(29)
         specific_student_value.append(data[1][student_id])
+        specific_student_value.append(29)
+        specific_student_value.append(27)
         specific_student_value.append(27)
         Echartreport = {
             'message' : 'Valid Input',
