@@ -8,6 +8,7 @@ import time_complexity
 import space_complexity
 import code_style
 import shutil
+from decimal import Decimal
 
 
 def download_zip():
@@ -138,6 +139,115 @@ def create_style_dict():
     style_file = open('../code_style.txt', 'w')
     style_file.writelines(result)
     style_file.close()
+
+
+def create_total_dict():
+    file = open("../code_similarity.txt", 'r')
+    data = eval(file.read())
+    file.close()
+    file_name_list = os.listdir("../code/res")
+    user_score = {}
+    current_user_score = 0
+    current_user = ""
+    current_case_num = 0
+    for i in range(len(file_name_list)):
+        print(file_name_list[i])
+        temp = file_name_list[i].split("_")
+        if temp[0] != current_user:
+            if current_user != "":
+                user_score[current_user] = round(current_user_score/current_case_num, 2)
+            current_user_score = 0
+            current_case_num = 0
+            current_user = temp[0]
+        similarity = list(data[temp[0]][temp[1]].values())
+        doubt = 0
+        for index in range(len(similarity)):
+            if similarity[index] == "one of them is not python file" or similarity[index] == "E":
+                continue
+            else:
+                if int(similarity[index]) >= 70:
+                    doubt = doubt + 1
+        code_similarity = round(doubt / len(similarity) * 100, 2)
+        current_user_score = current_user_score + code_similarity
+        current_case_num = current_case_num + 1
+        if i == len(file_name_list) - 1:
+            user_score[current_user] = round(current_user_score / current_case_num, 2)
+    temp = list(user_score.values())
+    total = 0
+    for i in range(len(temp)):
+        total = total + temp[i]
+    user_score["total"] = round(total/268, 2)
+    result = str(user_score) + "\n"
+    complexity_file = open('../code_total.txt', 'a+')
+    complexity_file.writelines(result)
+    complexity_file.close()
+    file = open("../code_style.txt", 'r')
+    data = eval(file.read())
+    file.close()
+    user_score = {}
+    current_case_num = 0
+    current_user_score = 0
+    current_user = ""
+    for i in range(len(file_name_list)):
+        print(file_name_list[i])
+        temp = file_name_list[i].split("_")
+        if temp[0] != current_user:
+            if current_user != "":
+                user_score[current_user] = round(current_user_score / current_case_num, 2)
+            current_user_score = 0
+            current_case_num = 0
+            current_user = temp[0]
+        style_num = 0
+        student_id = current_user
+        ques_id = temp[1]
+        if not data[student_id][ques_id]["is_indent_using_one"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_space_nums_multiple_of_four"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_within_len_range"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_not_trailing_space"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_space_around_operator"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_not_space_around_operator_in_def"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_using_one_quotation"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_not_blank_line_beginning"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_not_inline_comments"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_space_after_pound"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_blank_line_after_import"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_blank_line_before_class"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_blank_line_before_def"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_not_diff_package_in_the_same_line"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_import_before_from"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_not_blank_between_import"]:
+            style_num = style_num + 1
+        if not data[student_id][ques_id]["is_using_meaningful_name"]:
+            style_num = style_num + 1
+        code_style_score = round((17 - style_num) / 17 * 100, 2)
+        current_user_score = current_user_score + code_style_score
+        current_case_num = current_case_num + 1
+        if i == len(file_name_list) - 1:
+            user_score[current_user] = round(current_user_score / current_case_num, 2)
+    temp = list(user_score.values())
+    total = 0
+    for i in range(len(temp)):
+        total = total + temp[i]
+    user_score["total"] = round(total / 268, 2)
+    result = str(user_score) + "\n"
+    complexity_file = open('../code_total.txt', 'a+')
+    complexity_file.writelines(result)
+    complexity_file.close()
 
 
 if __name__ == "__main__":

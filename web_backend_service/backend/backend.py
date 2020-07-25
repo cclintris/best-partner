@@ -82,7 +82,7 @@ def report(student_id, ques_id):
         similarity = list(data[student_id][ques_id].values())
         doubt = 0
         for index in range(len(similarity)):
-            if similarity[index] == "one of them is not python file" or index == "E":
+            if similarity[index] == "one of them is not python file" or similarity[index] == "E":
                 continue
             else:
                 if int(similarity[index]) >= 70:
@@ -253,15 +253,19 @@ def Echartreport(student_id):
         3. 代码风格水平
         4. 代码空间复杂度
         '''
-        overall_student_value.append(220)
-        overall_student_value.append(410)
-        overall_student_value.append(398)
-        overall_student_value.append(400)
+        student_id = student_id.split("=")[1]
+        file = open("../code_total.txt", 'r', encoding='utf-8')
+        data = file.readlines()
+        file.close()
+        overall_student_value.append(data[0]["total"])
+        overall_student_value.append(41)
+        overall_student_value.append(39)
+        overall_student_value.append(data[1]["total"])
 
-        specific_student_value.append(120)
-        specific_student_value.append(290)
-        specific_student_value.append(287)
-        specific_student_value.append(300)
+        specific_student_value.append(data[0][student_id])
+        specific_student_value.append(29)
+        specific_student_value.append(27)
+        specific_student_value.append(data[1][student_id])
         Echartreport = {
             'message' : 'Valid Input',
             'overall_student_value' : overall_student_value,
