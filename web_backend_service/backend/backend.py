@@ -82,12 +82,12 @@ def report(student_id, ques_id):
         similarity = list(data[student_id][ques_id].values())
         doubt = 0
         for index in range(len(similarity)):
-            if index == "one of them is not python file" or index == "E":
+            if similarity[index] == "one of them is not python file" or index == "E":
                 continue
             else:
-                if int(index) >= 70:
+                if int(similarity[index]) >= 70:
                     doubt = doubt + 1
-        code_similarity = int(doubt/len(similarity))
+        code_similarity = round(doubt/len(similarity)*100, 2)
         file = open("../code_complexity.txt", 'r')
         data = eval(file.read())
         file.close()
@@ -205,7 +205,7 @@ def report(student_id, ques_id):
             data[student_id][ques_id]["is_using_meaningful_name"] = "否"
             style_num = style_num + 1
         is_using_meaningful_name = data[student_id][ques_id]["is_using_meaningful_name"]
-        code_style_score = style_num/17
+        code_style_score = round((17 - style_num)/17, 2)
         report = {
             'message' : 'Valid Input',
             'ques_type': ques_type,
@@ -223,7 +223,7 @@ def report(student_id, ques_id):
             'is_not_blank_line_beginning': is_not_blank_line_beginning,
             'is_not_inline_comments': is_not_inline_comments,
             'is_space_after_pound': is_space_after_pound,
-            'is_blank_line_after_import': is_not_blank_between_import,
+            'is_blank_line_after_import': is_blank_line_after_import,
             'is_blank_line_before_class': is_blank_line_before_class,
             'is_blank_line_before_def': is_blank_line_before_def,
             'is_not_diff_package_in_the_same_line': is_not_diff_package_in_the_same_line,

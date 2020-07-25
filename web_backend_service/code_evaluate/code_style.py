@@ -383,7 +383,7 @@ class Checker:
             if from_start == -1 and import_start == -1:
                 self.is_import_before_from = True
             else:
-                self.is_import_before_from = False
+                self.is_import_before_from = True
         # 检查import是否分离
         is_importing = -1
         for i in range(len(lines)):
