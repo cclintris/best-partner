@@ -380,7 +380,10 @@ class Checker:
                         self.is_not_diff_package_in_the_same_line = False
         # 检查import在from前
         if from_start <= import_start:
-            self.is_import_before_from = False
+            if from_start == -1 and import_start == -1:
+                self.is_import_before_from = True
+            else:
+                self.is_import_before_from = False
         # 检查import是否分离
         is_importing = -1
         for i in range(len(lines)):
