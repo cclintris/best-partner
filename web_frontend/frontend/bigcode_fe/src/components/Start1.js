@@ -63,7 +63,7 @@ export class Start1 extends Component {
         axios.get(`http://localhost:5000/report/student_id=${student_id_val}/ques_id=${ques_id_val}`)
         .then(response => {
             let data = response.data
-            console.log(data)
+            // console.log(data)
             if(data.message === "Invalid Input") {
                 message.warning("非法输入!")
             }else if(data.message === "Valid Input") {
