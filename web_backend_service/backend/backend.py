@@ -21,6 +21,8 @@ def report(student_id, ques_id):
         }
         return jsonify(error)
     else:
+        student_id = student_id.split("=")[1]
+        ques_id = ques_id.split("=")[1]
         file = open("../test_data.json", 'r', encoding="utf-8")
         data = eval(file.read())
         file.close()
