@@ -23,7 +23,7 @@ def report(student_id, ques_id):
     else:
         student_id = student_id.split("=")[1]
         ques_id = ques_id.split("=")[1]
-        file = open("../test_data.json", 'r', encoding="utf-8")
+        file = open("../../test_data.json", 'r', encoding="utf-8")
         data = eval(file.read())
         file.close()
         ques_type = ''
@@ -76,7 +76,7 @@ def report(student_id, ques_id):
                 'message': 'Invalid Input'
             }
             return jsonify(report)
-        file = open("../code_similarity.txt", 'r')
+        file = open("../../code_similarity.txt", 'r')
         data = eval(file.read())
         file.close()
         similarity = list(data[student_id][ques_id].values())
@@ -87,8 +87,8 @@ def report(student_id, ques_id):
             else:
                 if int(similarity[index]) >= 70:
                     doubt = doubt + 1
-        code_similarity = round(doubt/len(similarity)*100, 2)
-        file = open("../code_complexity.txt", 'r')
+        code_similarity = int(doubt/len(similarity))
+        file = open("../../code_complexity.txt", 'r')
         data = eval(file.read())
         file.close()
         file_name_list = list(data.keys())
@@ -99,7 +99,7 @@ def report(student_id, ques_id):
                 break
         code_time_complexity = "O(" + data[key][0] + ")"
         code_space_complexity = "O(" + data[key][1] + ")"
-        file = open("../code_style.txt", 'r')
+        file = open("../../code_style.txt", 'r')
         data = eval(file.read())
         file.close()
         style_num = 0
