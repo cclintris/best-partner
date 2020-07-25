@@ -4,6 +4,9 @@ import os
 import re
 import pycode_similarity
 import check_is_py
+import time_complexity
+import space_complexity
+import code_style
 import shutil
 
 
@@ -26,7 +29,7 @@ def create_similarity_dict():
     similarity_file = open('../code_similarity.txt', 'w')
     similarity_file.writelines(result)
     similarity_file.close()
-    code_path = "C:/Python/BigCode/code/res"
+    code_path = "../code/res"
     # 储存文件名的list
     file_name_list = os.listdir(code_path)
     # 所有题目号的list
@@ -38,69 +41,103 @@ def create_similarity_dict():
         case_id_list.append(temp[1])
         if temp[0] not in user_id_list:
             user_id_list.append(temp[0])
-    print(user_id_list)
-#     for user in user_id_list:
-#         res[user] = {}
-#         cases = []
-#         origin_file = []
-#         # 找到做了那些题目
-#         for file in file_name_list:
-#             if re.match(user, file):
-#                 origin_file.append(file)
-#                 temp_origin = file.split("_")
-#                 cases.append(temp_origin[1])
-#                 res[user][temp_origin[1]] = {}
-#         for i in range(len(cases)):
-#             for file in file_name_list:
-#                 # 找到需要比较的file
-#                 if re.match("\\d+_"+cases[i]+"_\\d+", file):
-#                     temp_comparison = file.split("_")
-#                     # if origin_file[i] != "16304_2573_306670" or file != "8318_2573_318712":
-#                     #     if x == 0:
-#                     #         continue
-#                     # else:
-#                     #     x = 1
-#                     if temp_comparison[0] == user:
-#                         continue
-#                     if not check_is_py.is_python("C:/Python/BigCode/code/res/" + origin_file[i] + "/main.py"):
-#                         res[user][cases[i]][temp_comparison[0]] = "one of them is not python file"
-#                         continue
-#                     if not check_is_py.is_python("C:/Python/BigCode/code/res/"+file+"/main.py"):
-#                         res[user][cases[i]][temp_comparison[0]] = "one of them is not python file"
-#                         continue
-#                     if temp_comparison[0] in res:
-#                         res[user][cases[i]][temp_comparison[0]] = res[temp_comparison[0]][cases[i]][user]
-#                     else:
-#                         code_similarity = pycode_similarity.inspect("C:/Python/BigCode/code/res/"+origin_file[i]+"/main.py",
-#                                                                     "C:/Python/BigCode/code/res/"+file+"/main.py")
-#                         res[user][cases[i]][temp_comparison[0]] = code_similarity
-#         os.remove('../code_similarity.txt')
-#         result = str(res)
-#         similarity_file = open('../code_similarity.txt', 'w')
-#         similarity_file.writelines(result)
-#         similarity_file.close()
-#
-#
-# def create_complexity_dict():
-#     # 数据格式{file_name0: [time, space], file_name1: [time, space].... ,}
-#     res = {}
-#     code_path = "C:\\Python\\BigCode\\code\\res"
-#     # 储存文件名的list
-#     file_name_list = os.listdir(code_path)
-#     # print(file_name_list)
-#     for file in file_name_list:
-#         print(file)
-#         res[file] = []
-#         time_str = time_complexity.TimeChecker("C:/Python/BigCode/code/res/" + file + "/main.py").deal_with_file()
-#         space_str = space_complexity.SpaceChecker("C:/Python/BigCode/code/res/" + file + "/main.py").deal_with_file()
-#         res[file].append(time_str)
-#         res[file].append(space_str)
-#         print(res)
-#     print(res)
-#     result = str(res)
-#     complexity_file = open('../code_complexity.txt', 'w')
-#     complexity_file.writelines(result)
-#     complexity_file.close()
+    for user in user_id_list:
+        res[user] = {}
+        cases = []
+        origin_file = []
+        # 找到做了那些题目
+        for file in file_name_list:
+            if re.match(user, file):
+                origin_file.append(file)
+                temp_origin = file.split("_")
+                cases.append(temp_origin[1])
+                res[user][temp_origin[1]] = {}
+        for i in range(len(cases)):
+            for file in file_name_list:
+                # 找到需要比较的file
+                if re.match("\\d+_"+cases[i]+"_\\d+", file):
+                    temp_comparison = file.split("_")
+                    # if origin_file[i] != "16304_2573_306670" or file != "8318_2573_318712":
+                    #     if x == 0:
+                    #         continue
+                    # else:
+                    #     x = 1
+                    if temp_comparison[0] == user:
+                        continue
+                    if not check_is_py.is_python("../code/res/" + origin_file[i] + "/properties"):
+                        res[user][cases[i]][temp_comparison[0]] = "one of them is not python file"
+                        continue
+                    if not check_is_py.is_python("../code/res/"+file+"/properties"):
+                        res[user][cases[i]][temp_comparison[0]] = "one of them is not python file"
+                        continue
+                    if temp_comparison[0] in res:
+                        res[user][cases[i]][temp_comparison[0]] = res[temp_comparison[0]][cases[i]][user]
+                    else:
+                        code_similarity = pycode_similarity.inspect("../code/res/"+origin_file[i]+"/main.py",
+                                                                    "../code/res/"+file+"/main.py")
+                        res[user][cases[i]][temp_comparison[0]] = code_similarity
+        os.remove('../code_similarity.txt')
+        result = str(res)
+        similarity_file = open('../code_similarity.txt', 'w')
+        similarity_file.writelines(result)
+        similarity_file.close()
+
+
+def create_complexity_dict():
+    # 数据格式{file_name0: [time, space], file_name1: [time, space].... ,}
+    res = {}
+    code_path = "../code/res"
+    # 储存文件名的list
+    file_name_list = os.listdir(code_path)
+    # print(file_name_list)
+    for file in file_name_list:
+        print(file)
+        res[file] = []
+        time_str = time_complexity.TimeChecker("../code/res/" + file + "/main.py").deal_with_file()
+        space_str = space_complexity.SpaceChecker("../code/res/" + file + "/main.py").deal_with_file()
+        res[file].append(time_str)
+        res[file].append(space_str)
+    result = str(res)
+    complexity_file = open('../code_complexity.txt', 'w')
+    complexity_file.writelines(result)
+    complexity_file.close()
+
+
+def create_style_dict():
+    code_path = "../code/res"
+    res = {}
+    file_name_list = os.listdir(code_path)
+    for file in file_name_list:
+        print(file)
+        style = code_style.Checker("../code/res/" + file + "/main.py")
+        user_id = file.split("_")[0]
+        if user_id not in res:
+            res[user_id] = {}
+        case_id = file.split("_")[1]
+        if not check_is_py.is_python("../code/res/" + file + "/properties"):
+            res[user_id][case_id] = "It's not a python file."
+        res[user_id][case_id] = {}
+        res[user_id][case_id]["is_indent_using_one"] = style.is_indent_using_one
+        res[user_id][case_id]["is_space_nums_multiple_of_four"] = style.is_space_nums_multiple_of_four
+        res[user_id][case_id]["is_within_len_range"] = style.is_within_len_range
+        res[user_id][case_id]["is_not_trailing_space"] = style.is_not_trailing_space
+        res[user_id][case_id]["is_space_around_operator"] = style.is_space_around_operator
+        res[user_id][case_id]["is_not_space_around_operator_in_def"] = style.is_not_space_around_operator_in_def
+        res[user_id][case_id]["is_using_one_quotation"] = style.is_using_one_quotation
+        res[user_id][case_id]["is_not_blank_line_beginning"] = style.is_not_blank_line_beginning
+        res[user_id][case_id]["is_not_inline_comments"] = style.is_not_inline_comments
+        res[user_id][case_id]["is_space_after_pound"] = style.is_space_after_pound
+        res[user_id][case_id]["is_blank_line_after_import"] = style.is_blank_line_after_import
+        res[user_id][case_id]["is_blank_line_before_class"] = style.is_blank_line_before_class
+        res[user_id][case_id]["is_blank_line_before_def"] = style.is_blank_line_before_def
+        res[user_id][case_id]["is_not_diff_package_in_the_same_line"] = style.is_not_diff_package_in_the_same_line
+        res[user_id][case_id]["is_import_before_from"] = style.is_import_before_from
+        res[user_id][case_id]["is_not_blank_between_import"] = style.is_not_blank_between_import
+        res[user_id][case_id]["is_using_meaningful_name"] = style.is_using_meaningful_name
+    result = str(res)
+    style_file = open('../code_style.txt', 'w')
+    style_file.writelines(result)
+    style_file.close()
 
 
 if __name__ == "__main__":
@@ -108,4 +145,9 @@ if __name__ == "__main__":
     # print(space_complexity.SpaceChecker("../test/space_comp_test.py").deal_with_file())
     # print(time_complexity.TimeChecker("../test/time_comp_test.py").deal_with_file())
     # create_complexity_dict()
-    create_similarity_dict()
+    # file = "2843_2542_240511"
+    # f = open("../code/res/" + file + "/main.py")
+    # # a = f.read()
+    # # print(a)
+    # style = code_style.Checker("../code/res/" + file + "/main.py")
+    create_complexity_dict()

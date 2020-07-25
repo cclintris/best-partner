@@ -11,7 +11,6 @@ import requests
 
 
 class Checker:
-    file = open('', 'r')
     # 翻译时使用的翻译接口
     url = "http://fanyi.youdao.com/translate"
     # 所有以下变量 True无问题 False有问题
@@ -38,7 +37,7 @@ class Checker:
 
     # 构造函数 传入需检查的代码路径
     def __init__(self, filepath: str):
-        self.file = open(filepath, 'r')
+        self.file = open(filepath, 'r', encoding="utf-8")
         self.check_indentation()
         self.check_length()
         self.check_names()
@@ -60,6 +59,8 @@ class Checker:
                 while line[index] == ' ':
                     space_num = space_num + 1
                     index = index + 1
+                    if index == len(line):
+                        break
                 if space_num % 4 != 0:
                     self.is_space_nums_multiple_of_four = False
                 if self.tab_or_space == -1:
