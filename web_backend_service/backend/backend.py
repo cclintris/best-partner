@@ -255,7 +255,7 @@ def Echartreport(student_id):
         '''
         student_id = student_id.split("=")[1]
         file = open("../code_total.txt", 'r', encoding='utf-8')
-        data = file.readlines()
+        data = eval(file.read())
         file.close()
         overall_student_value.append(data[0]["total"])
         overall_student_value.append(41)

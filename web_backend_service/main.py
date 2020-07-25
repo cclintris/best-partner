@@ -142,6 +142,7 @@ def create_style_dict():
 
 
 def create_total_dict():
+    res = []
     file = open("../code_similarity.txt", 'r')
     data = eval(file.read())
     file.close()
@@ -177,10 +178,7 @@ def create_total_dict():
     for i in range(len(temp)):
         total = total + temp[i]
     user_score["total"] = round(total/268, 2)
-    result = str(user_score) + "\n"
-    complexity_file = open('../code_total.txt', 'a+')
-    complexity_file.writelines(result)
-    complexity_file.close()
+    res.append(user_score)
     file = open("../code_style.txt", 'r')
     data = eval(file.read())
     file.close()
@@ -244,8 +242,9 @@ def create_total_dict():
     for i in range(len(temp)):
         total = total + temp[i]
     user_score["total"] = round(total / 268, 2)
-    result = str(user_score) + "\n"
-    complexity_file = open('../code_total.txt', 'a+')
+    res.append(user_score)
+    result = str(res)
+    complexity_file = open('../code_total.txt', 'w')
     complexity_file.writelines(result)
     complexity_file.close()
 
