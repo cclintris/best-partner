@@ -87,7 +87,7 @@ def report(student_id, ques_id):
             else:
                 if int(similarity[index]) >= 70:
                     doubt = doubt + 1
-        code_similarity = int(doubt/len(similarity))
+        code_similarity = round(doubt/len(similarity)*100, 2)
         file = open("../code_complexity.txt", 'r')
         data = eval(file.read())
         file.close()
