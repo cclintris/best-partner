@@ -85,8 +85,8 @@ class Checker:
         for i in range(len(main_codes)):
             code_line = main_codes[i]
             for method in self.methods_complexity:
-                method_call = re.search("\\W+" + method + "\\([^()]*\\)",
-                                        code_line) is not None or re.match("\\s*" + method + "\\([^()]*\\)",
+                method_call = re.search("\\W+" + method + "\\([^)]*\\)",
+                                        code_line) is not None or re.match("\\s*" + method + "\\([^)]*\\)",
                                                                            code_line) is not None
                 if method_call:
                     method_call_index[method].append(i)
@@ -113,7 +113,7 @@ class Checker:
         methods_call_index = self.cal_method_call_index(main_codes)
         for k, v in methods_call_index.items():
             for q in v:
-                main_comp_tag[q] = self.methods_complexity[k]
+                main_comp_tag[q] = max(self.methods_complexity[k], main_comp_tag[q])
         for i in range(len(main_codes)):
             line = main_codes[i].lstrip()
             # 扫描行首是否有循环保留字
