@@ -1,12 +1,21 @@
 import React, { Component } from 'react';
 import { Input, Button, Divider, Descriptions, message, Modal, Spin } from 'antd'
 import { CheckOutlined } from '@ant-design/icons'
+import { createFromIconfontCN } from '@ant-design/icons'
 import axios from 'axios'
+
+const IconFont = createFromIconfontCN({
+    scriptUrl: [
+      '//at.alicdn.com/t/font_1788044_0dwu4guekcwr.js', // icon-javascript, icon-java, icon-shoppingcart (overrided)
+      '//at.alicdn.com/t/font_1788592_a5xf2bdic3u.js', // icon-shoppingcart, icon-python
+    ],
+});
 
 export class Start1 extends Component {
     constructor() {
         super()
         this.state = {
+            code : '',
             ques_type : '',
             upload_time : '',
             code_similarity : '',
@@ -33,6 +42,7 @@ export class Start1 extends Component {
             code_style_score : '',
             modal_visible : false, // Modal show visible
             loading_visible : false, // Loading show visible
+            code_modal_visible : false, // code_Modal show visible
         }
     }
 
@@ -42,10 +52,17 @@ export class Start1 extends Component {
         })
     }
 
+    show_codeModal = () => {
+        this.setState({
+            code_modal_visible : true
+        })
+    }
+
     handleOk = e => {
         // console.log(e);
         this.setState({
             modal_visible: false,
+            code_modal_visible : false,
         });
       };
     
@@ -53,6 +70,7 @@ export class Start1 extends Component {
         // console.log(e);
         this.setState({
             modal_visible: false,
+            code_modal_visible : false,
         });
     };
 
@@ -77,6 +95,7 @@ export class Start1 extends Component {
                 message.warning("非法输入!")
             }else if(data.message === "Valid Input") {
                 this.setState({
+                    code : data.code,
                     ques_type : data.ques_type,
                     upload_time : data.upload_time,
                     code_similarity : data.code_similarity,
@@ -127,6 +146,20 @@ export class Start1 extends Component {
                     this.state.loading_visible === true ?<Spin size="large" tip="加载中..."/>:null
                 }
                 <Divider />
+                <Button type="dashed" 
+                        onClick={() => this.show_codeModal()}
+                        icon={<IconFont type="icon-python"/>}
+                >
+                    查看代码
+                </Button>
+                <Modal
+                    title="完整原代码"
+                    visible={ this.state.code_modal_visible }
+                    onOk = { this.handleOk }
+                    onCancel = { this.handleCancel }
+                >
+                { this.state.code }
+                </Modal>
                 <Descriptions title="学生编程评价报告" bordered className="description-text">
                     <Descriptions.Item label="题目分组">
                         { this.state.ques_type }
