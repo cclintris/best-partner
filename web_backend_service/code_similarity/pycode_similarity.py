@@ -254,18 +254,6 @@ class FuncInfo(object):
 
     @staticmethod
     def _iter_node(node, name='', missing=NonExistent):
-        """Iterates over an object:
-
-           - If the object has a _fields attribute,
-             it gets attributes in the order of this
-             and returns name, value pairs.
-
-           - Otherwise, if the object is a list instance,
-             it returns name, value pairs for each item
-             in the list, where the name is passed into
-             this function (defaults to blank).
-
-        """
         fields = getattr(node, '_fields', None)
         if fields is not None:
             for name in fields:
@@ -279,13 +267,6 @@ class FuncInfo(object):
     @staticmethod
     def _dump(node, name=None, initial_indent='', indentation='    ',
               maxline=120, maxmerged=80, special=ast.AST):
-        """Dumps an AST or similar structure:
-
-           - Pretty-prints with indentation
-           - Doesn't print line/column/ctx info
-
-        """
-
         def _inner_dump(node, name=None, indent=''):
             level = indent + indentation
             name = name and name + '=' or ''
