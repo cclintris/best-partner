@@ -264,15 +264,15 @@ def Echartreport(student_id):
         file.close()
         overall_student_value.append(data[0]["total"])
         overall_student_value.append(data[1]["total"])
-        overall_student_value.append(41)
-        overall_student_value.append(39)
-        overall_student_value.append(39)
+        overall_student_value.append(data[4]["total"])
+        overall_student_value.append(data[5]["total"])
+        overall_student_value.append(data[3]["total"])
 
         specific_student_value.append(data[0][student_id])
         specific_student_value.append(data[1][student_id])
-        specific_student_value.append(29)
-        specific_student_value.append(27)
-        specific_student_value.append(27)
+        specific_student_value.append(data[4][student_id])
+        specific_student_value.append(data[5][student_id])
+        specific_student_value.append(data[3][student_id])
         Echartreport = {
             'message' : 'Valid Input',
             'overall_student_value' : overall_student_value,

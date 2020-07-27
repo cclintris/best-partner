@@ -7,7 +7,7 @@ import check_is_py
 import time_complexity
 import space_complexity
 import code_style
-import shutil
+import comp_str
 from decimal import Decimal
 
 
@@ -151,8 +151,8 @@ def create_total_dict():
     current_user_score = 0
     current_user = ""
     current_case_num = 0
+    # 相似度
     for i in range(len(file_name_list)):
-        print(file_name_list[i])
         temp = file_name_list[i].split("_")
         if temp[0] != current_user:
             if current_user != "":
@@ -179,6 +179,7 @@ def create_total_dict():
         total = total + temp[i]
     user_score["total"] = round(total/268, 2)
     res.append(user_score)
+    # 风格
     file = open("../code_style.txt", 'r')
     data = eval(file.read())
     file.close()
@@ -187,7 +188,6 @@ def create_total_dict():
     current_user_score = 0
     current_user = ""
     for i in range(len(file_name_list)):
-        print(file_name_list[i])
         temp = file_name_list[i].split("_")
         if temp[0] != current_user:
             if current_user != "":
@@ -243,6 +243,143 @@ def create_total_dict():
         total = total + temp[i]
     user_score["total"] = round(total / 268, 2)
     res.append(user_score)
+    # 分数
+    file_name_list = os.listdir("../code/res")
+    file = open("../test_data.json", 'r', encoding="utf-8")
+    data = eval(file.read())
+    file.close()
+    case_score_temp = {}
+    for file in file_name_list:
+        student_id = file.split("_")[0]
+        ques_id = file.split("_")[1]
+        if ques_id not in case_score_temp:
+            case_score_temp[ques_id] = []
+        score = 0
+        for case in range(len(data[student_id]["cases"])):
+            if data[student_id]["cases"][case]["case_id"] == ques_id:
+                score = data[student_id]["cases"][case]["final_score"]
+        case_score_temp[ques_id].append(score)
+    case_score = {}
+    for case in list(case_score_temp.keys()):
+        case_score[case] = sum(case_score_temp[case])/len(case_score_temp[case])
+    user_score = {}
+    current_case_num = 0
+    current_user_score = 0
+    current_user = ""
+    for i in range(len(file_name_list)):
+        temp = file_name_list[i].split("_")
+        if temp[0] != current_user:
+            if current_user != "":
+                user_score[current_user] = round(current_user_score / current_case_num, 2)
+            current_user_score = 0
+            current_case_num = 0
+            current_user = temp[0]
+        student_id = current_user
+        ques_id = temp[1]
+        score = 0
+        for case in range(len(data[student_id]["cases"])):
+            if data[student_id]["cases"][case]["case_id"] == ques_id:
+                score = data[student_id]["cases"][case]["final_score"]
+        code_score = score * case_score[ques_id] / 100
+        current_user_score = current_user_score + code_score
+        current_case_num = current_case_num + 1
+        if i == len(file_name_list) - 1:
+            user_score[current_user] = round(current_user_score / current_case_num, 2)
+    temp = list(user_score.values())
+    total = 0
+    for i in range(len(temp)):
+        total = total + temp[i]
+    user_score["total"] = round(total / 268, 2)
+    res.append(user_score)
+    # 时间复杂
+    file = open("../code_complexity.txt", 'r', encoding="utf-8")
+    data = eval(file.read())
+    file.close()
+    case_score_temp = {}
+    for file in list(data.keys()):
+        ques_id = file.split("_")[1]
+        if ques_id not in case_score_temp:
+            case_score_temp[ques_id] = []
+        if data[file][0] not in case_score_temp[ques_id]:
+            case_score_temp[ques_id].append((data[file][0]))
+    for case in list(case_score_temp.keys()):
+        temp1 = list()
+        for value in case_score_temp[case]:
+            temp1.append(comp_str.CompStr(value))
+        temp1.sort()
+        temp = list()
+        for obj in temp1:
+            temp.append(obj.value)
+        case_score_temp[case] = temp
+    user_score = {}
+    current_case_num = 0
+    current_user_score = 0
+    current_user = ""
+    for i in range(len(file_name_list)):
+        temp = file_name_list[i].split("_")
+        if temp[0] != current_user:
+            if current_user != "":
+                user_score[current_user] = round(current_user_score / current_case_num, 2)
+            current_user_score = 0
+            current_case_num = 0
+            current_user = temp[0]
+        ques_id = temp[1]
+        score = 100 / len(case_score_temp[ques_id]) * (case_score_temp[ques_id].index(data[file_name_list[i]][0]) + 1)
+        current_user_score = current_user_score + score
+        current_case_num = current_case_num + 1
+        if i == len(file_name_list) - 1:
+            user_score[current_user] = round(current_user_score / current_case_num, 2)
+    temp = list(user_score.values())
+    total = 0
+    for i in range(len(temp)):
+        total = total + temp[i]
+    user_score["total"] = round(total / 268, 2)
+    res.append(user_score)
+    # 空间复杂
+    file = open("../code_complexity.txt", 'r', encoding="utf-8")
+    data = eval(file.read())
+    file.close()
+    case_score_temp = {}
+    for file in list(data.keys()):
+        ques_id = file.split("_")[1]
+        if ques_id not in case_score_temp:
+            case_score_temp[ques_id] = []
+        if data[file][1] not in case_score_temp[ques_id]:
+            case_score_temp[ques_id].append((data[file][1]))
+    for case in list(case_score_temp.keys()):
+        temp1 = list()
+        for value in case_score_temp[case]:
+            temp1.append(comp_str.CompStr(value))
+        temp1.sort()
+        temp = list()
+        for obj in temp1:
+            temp.append(obj.value)
+        case_score_temp[case] = temp
+    user_score = {}
+    current_case_num = 0
+    current_user_score = 0
+    current_user = ""
+    for i in range(len(file_name_list)):
+        temp = file_name_list[i].split("_")
+        if temp[0] != current_user:
+            if current_user != "":
+                user_score[current_user] = round(current_user_score / current_case_num, 2)
+            current_user_score = 0
+            current_case_num = 0
+            current_user = temp[0]
+        ques_id = temp[1]
+        score = 100 / len(case_score_temp[ques_id]) * (case_score_temp[ques_id].index(data[file_name_list[i]][1]) + 1)
+        current_user_score = current_user_score + score
+        current_case_num = current_case_num + 1
+        if i == len(file_name_list) - 1:
+            user_score[current_user] = round(current_user_score / current_case_num, 2)
+    temp = list(user_score.values())
+    total = 0
+    for i in range(len(temp)):
+        total = total + temp[i]
+    user_score["total"] = round(total / 268, 2)
+    res.append(user_score)
+    # 写入
     result = str(res)
     complexity_file = open('../code_total.txt', 'w')
     complexity_file.writelines(result)
@@ -250,13 +387,8 @@ def create_total_dict():
 
 
 if __name__ == "__main__":
-    # test = "../../test/space_comp_test.py"
-    # print(space_complexity.SpaceChecker("../test/space_comp_test.py").deal_with_file())
-    # print(time_complexity.TimeChecker("../test/time_comp_test.py").deal_with_file())
-    # create_complexity_dict()
-    # file = "2843_2542_240511"
-    # f = open("../code/res/" + file + "/main.py")
-    # # a = f.read()
-    # # print(a)
-    # style = code_style.Checker("../code/res/" + file + "/main.py")
+    download_zip()
+    create_similarity_dict()
     create_complexity_dict()
+    create_style_dict()
+    create_total_dict()
