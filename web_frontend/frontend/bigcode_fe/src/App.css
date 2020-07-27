@@ -78,3 +78,7 @@
 .confirm {
   margin-right: 20px;
 }
+
+.code-style {
+   white-space : pre-wrap;
+}

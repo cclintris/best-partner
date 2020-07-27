@@ -173,6 +173,8 @@ def create_total_dict():
         current_case_num = current_case_num + 1
         if i == len(file_name_list) - 1:
             user_score[current_user] = round(current_user_score / current_case_num, 2)
+    for user in list(user_score.keys()):
+        user_score[user] = round((100 - user_score[user] * 100 / max(list(user_score.values()))), 2)
     temp = list(user_score.values())
     total = 0
     for i in range(len(temp)):
@@ -306,7 +308,7 @@ def create_total_dict():
         temp1 = list()
         for value in case_score_temp[case]:
             temp1.append(comp_str.CompStr(value))
-        temp1.sort()
+        temp1.sort(reverse=True)
         temp = list()
         for obj in temp1:
             temp.append(obj.value)
@@ -350,7 +352,7 @@ def create_total_dict():
         temp1 = list()
         for value in case_score_temp[case]:
             temp1.append(comp_str.CompStr(value))
-        temp1.sort()
+        temp1.sort(reverse=True)
         temp = list()
         for obj in temp1:
             temp.append(obj.value)

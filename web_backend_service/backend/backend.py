@@ -1,5 +1,6 @@
 #import pycode_similarity
 import time
+import os
 from decimal import Decimal
 from flask import Flask, jsonify
 app = Flask(__name__)
@@ -72,6 +73,7 @@ def report(student_id, ques_id):
                         'is_not_blank_between_import': 'Null',
                         'is_using_meaningful_name': 'Null',
                         'code_style_score': 'Null',
+                        'code': 'Null',
                     }
                     return jsonify(report)
         if not flag:
@@ -79,6 +81,14 @@ def report(student_id, ques_id):
                 'message': 'Invalid Input'
             }
             return jsonify(report)
+        file_name_list = os.listdir("../../code/res")
+        current_file_name = ""
+        for file in file_name_list:
+            if student_id in file and ques_id in file:
+                current_file_name = file
+        temp = open("../../code/res/" + current_file_name + "/main.py", "r", encoding="utf-8")
+        code = temp.read()
+        temp.close()
         file = open("../../code_similarity.txt", 'r')
         data = eval(file.read())
         file.close()
@@ -235,6 +245,8 @@ def report(student_id, ques_id):
             'is_not_blank_between_import': is_not_blank_between_import,
             'is_using_meaningful_name': is_using_meaningful_name,
             'code_style_score': code_style_score,
+            'code': code,
+            'text': "        44"
         }
         return jsonify(report)
 
@@ -262,6 +274,11 @@ def Echartreport(student_id):
         file = open("../../code_total.txt", 'r', encoding='utf-8')
         data = eval(file.read())
         file.close()
+        if student_id not in data[0]:
+            error = {
+                'message': 'Invalid Input'
+            }
+            return jsonify(error)
         overall_student_value.append(data[0]["total"])
         overall_student_value.append(data[1]["total"])
         overall_student_value.append(data[3]["total"])

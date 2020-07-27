@@ -21,7 +21,7 @@ export class Start2 extends Component {
             let data = response.data
             console.log(data)
             if(data.message === "Invalid Input") {
-                message.warning("学生id不可为空!")
+                message.warning("非法输入!")
             }else if(data.message === "Valid Input") {
                 this.setState({
                     overall_student_value : data.overall_student_value,
